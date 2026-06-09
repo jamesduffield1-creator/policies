@@ -673,9 +673,12 @@ function showPage(p){
     actions.innerHTML=`<button class="btn btn-primary" onclick="openNewEditor()">+ New Policy</button>`;
   }
   if(p==='view'){
+    const viewedPolicy=policies.find(x=>x.id===currentViewId);
+    const isITPolicy=viewedPolicy?.id==='p36';
     actions.innerHTML=`
       <button class="btn btn-secondary" onclick="showPage('library')">← Library</button>
       ${role==='admin'?`<button class="btn btn-primary" onclick="openEditEditor(currentViewId)">Edit</button>`:''}
+      ${isITPolicy?`<a href="equipment-issue-form.html" target="_blank" class="btn btn-ghost">📋 Issue Form ↗</a>`:''}
       <button class="btn btn-ghost" onclick="downloadPDF()">⬇ Save as PDF</button>
       <a href="${DRIVE_FOLDER_URL}" target="_blank" class="btn btn-ghost">Drive Folder ↗</a>
     `;

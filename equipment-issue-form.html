@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Equipment Issue Form — St Francis Mackworth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0C0F14;
+    --slate: #445566;
+    --muted: #7A8899;
+    --border: #C8D4E0;
+    --surface: #F7F9FC;
+    --accent: #1A3A6B;
+    --font-serif: 'Crimson Pro', Georgia, serif;
+    --font-sans: 'DM Sans', system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: var(--ink);
+    background: #fff;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 32px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  /* ── SCREEN: print button ── */
+  .screen-only {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 24px;
+    gap: 10px;
+  }
+  .btn-print {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 7px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .btn-back {
+    background: #fff;
+    color: var(--slate);
+    border: 1px solid var(--border);
+    padding: 9px 20px;
+    border-radius: 7px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* ── HEADER ── */
+  .form-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: 20px;
+  }
+  .church-name {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.2;
+  }
+  .church-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 3px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .form-title-block {
+    text-align: right;
+  }
+  .form-title {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .form-ref {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .cross-svg {
+    width: 28px;
+    height: 28px;
+    margin-right: 10px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .church-name-wrap {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  /* ── SECTIONS ── */
+  .form-section {
+    margin-bottom: 18px;
+  }
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    background: #EEF4FF;
+    padding: 4px 10px;
+    border-radius: 4px 4px 0 0;
+    border: 1px solid #BFDBFE;
+    border-bottom: none;
+    display: inline-block;
+    margin-bottom: -1px;
+  }
+  .section-body {
+    border: 1px solid var(--border);
+    border-radius: 0 6px 6px 6px;
+    overflow: hidden;
+  }
+
+  /* ── FIELD ROWS ── */
+  .field-row {
+    display: grid;
+    border-bottom: 1px solid var(--border);
+  }
+  .field-row:last-child {
+    border-bottom: none;
+  }
+  .field-row.cols-1 { grid-template-columns: 1fr; }
+  .field-row.cols-2 { grid-template-columns: 1fr 1fr; }
+  .field-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field-row.cols-label-wide { grid-template-columns: 180px 1fr; }
+
+  .field {
+    padding: 8px 12px;
+    border-right: 1px solid var(--border);
+  }
+  .field:last-child {
+    border-right: none;
+  }
+  .field-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .field-value {
+    min-height: 22px;
+    border-bottom: 1px dotted var(--border);
+    width: 100%;
+  }
+  .field-value-tall {
+    min-height: 36px;
+    border-bottom: 1px dotted var(--border);
+    width: 100%;
+  }
+
+  /* ── CONDITION CHECKBOXES ── */
+  .condition-boxes {
+    display: flex;
+    gap: 16px;
+    padding: 4px 0;
+  }
+  .condition-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--slate);
+  }
+  .checkbox-box {
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── ACKNOWLEDGEMENT ── */
+  .ack-body {
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--slate);
+    line-height: 1.7;
+    border-bottom: 1px solid var(--border);
+  }
+  .ack-body strong {
+    color: var(--ink);
+  }
+  .ack-points {
+    margin: 8px 0 0 16px;
+  }
+  .ack-points li {
+    margin-bottom: 4px;
+  }
+
+  /* ── SIGNATURE GRID ── */
+  .sig-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .sig-block {
+    padding: 10px 14px;
+    border-right: 1px solid var(--border);
+  }
+  .sig-block:last-child {
+    border-right: none;
+  }
+  .sig-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .sig-line {
+    border-bottom: 1px solid var(--ink);
+    height: 32px;
+    margin-bottom: 6px;
+  }
+  .sig-caption {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* ── RETURN SECTION ── */
+  .return-header {
+    background: var(--surface);
+    padding: 8px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--slate);
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── FOOTER ── */
+  .form-footer {
+    margin-top: 20px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* ── PRINT STYLES ── */
+  @media print {
+    body { padding: 0; max-width: none; }
+    .screen-only { display: none !important; }
+    @page { margin: 1.5cm 2cm; size: A4; }
+    .form-section { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="screen-only">
+  <a class="btn-back" href="index.html">← Policy Hub</a>
+  <button class="btn-print" onclick="window.print()">Print / Save as PDF</button>
+</div>
+
+<!-- ── HEADER ─────────────────────────────────────────────── -->
+<div class="form-header">
+  <div class="church-name-wrap">
+    <svg class="cross-svg" viewBox="0 0 32 32" fill="none">
+      <rect x="13" y="1" width="6" height="30" rx="3" fill="#1A3A6B"/>
+      <rect x="1" y="13" width="30" height="6" rx="3" fill="#1A3A6B"/>
+    </svg>
+    <div>
+      <div class="church-name">St Francis Mackworth</div>
+      <div class="church-sub">Derby Diocese · HTB Network</div>
+    </div>
+  </div>
+  <div class="form-title-block">
+    <div class="form-title">IT Equipment Issue Form</div>
+    <div class="form-ref">Ref: STF-IT-EIF &nbsp;|&nbsp; See also: Policy 36</div>
+  </div>
+</div>
+
+<!-- ── SECTION A: EQUIPMENT DETAILS ──────────────────────── -->
+<div class="form-section">
+  <div class="section-label">A — Equipment Details</div>
+  <div class="section-body">
+    <div class="field-row cols-2">
+      <div class="field">
+        <div class="field-label">Device Type</div>
+        <div class="condition-boxes">
+          <div class="condition-item"><div class="checkbox-box"></div> Laptop</div>
+          <div class="condition-item"><div class="checkbox-box"></div> Tablet</div>
+          <div class="condition-item"><div class="checkbox-box"></div> Phone</div>
+          <div class="condition-item"><div class="checkbox-box"></div> Other</div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">Make &amp; Model</div>
+        <div class="field-value"></div>
+      </div>
+    </div>
+    <div class="field-row cols-3">
+      <div class="field">
+        <div class="field-label">Serial Number</div>
+        <div class="field-value"></div>
+      </div>
+      <div class="field">
+        <div class="field-label">Asset Tag / Ref</div>
+        <div class="field-value"></div>
+      </div>
+      <div class="field">
+        <div class="field-label">Operating System</div>
+        <div class="field-value"></div>
+      </div>
+    </div>
+    <div class="field-row cols-1">
+      <div class="field">
+        <div class="field-label">Condition at Issue</div>
+        <div class="condition-boxes">
+          <div class="condition-item"><div class="checkbox-box"></div> New / Unused</div>
+          <div class="condition-item"><div class="checkbox-box"></div> Good — no visible damage</div>
+          <div class="condition-item"><div class="checkbox-box"></div> Fair — minor marks/wear</div>
+          <div class="condition-item"><div class="checkbox-box"></div> Poor — damage noted below</div>
+        </div>
+      </div>
+    </div>
+    <div class="field-row cols-1">
+      <div class="field">
+        <div class="field-label">Pre-existing damage / notes</div>
+        <div class="field-value-tall"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SECTION B: ISSUED TO ───────────────────────────────── -->
+<div class="form-section">
+  <div class="section-label">B — Issued To</div>
+  <div class="section-body">
+    <div class="field-row cols-2">
+      <div class="field">
+        <div class="field-label">Full Name</div>
+        <div class="field-value"></div>
+      </div>
+      <div class="field">
+        <div class="field-label">Role at STF</div>
+        <div class="field-value"></div>
+      </div>
+    </div>
+    <div class="field-row cols-3">
+      <div class="field">
+        <div class="field-label">Date Issued</div>
+        <div class="field-value"></div>
+      </div>
+      <div class="field">
+        <div class="field-label">Issued By</div>
+        <div class="field-value"></div>
+      </div>
+      <div class="field">
+        <div class="field-label">Expected Return Date</div>
+        <div class="field-value"></div>
+      </div>
+    </div>
+    <div class="field-row cols-1">
+      <div class="field">
+        <div class="field-label">Primary purpose of issue</div>
+        <div class="field-value-tall"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SECTION C: ACKNOWLEDGEMENT ────────────────────────── -->
+<div class="form-section">
+  <div class="section-label">C — Policy Acknowledgement</div>
+  <div class="section-body">
+    <div class="ack-body">
+      By signing this form, I confirm that I have read and understood the <strong>IT Equipment &amp; Acceptable Use Policy (Policy 36)</strong> and I agree to the following:
+      <ul class="ack-points">
+        <li>I will use this equipment only for church-related purposes, as set out in the policy.</li>
+        <li>I will not store personal data outside of church-approved systems (ChurchSuite, Microsoft 365 / Google Workspace).</li>
+        <li>I will keep the device secured with a strong password or PIN and enable automatic screen lock.</li>
+        <li>I will install operating system and security updates promptly and will not install unapproved software.</li>
+        <li>I will not allow family members or third parties regular use of the device.</li>
+        <li>I will report any loss, theft, or suspected data breach to the Operations Manager <strong>immediately</strong> — not the next working day.</li>
+        <li>I will return the equipment within 7 days of leaving my role, in the same condition as issued (fair wear and tear excepted), and will not wipe or reset the device myself.</li>
+        <li>I understand that the church retains ownership of this equipment at all times.</li>
+      </ul>
+    </div>
+    <div class="sig-grid">
+      <div class="sig-block">
+        <div class="sig-label">Recipient Signature</div>
+        <div class="sig-line"></div>
+        <div class="sig-caption">Print name: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date:</div>
+      </div>
+      <div class="sig-block">
+        <div class="sig-label">Issued By (Operations Manager)</div>
+        <div class="sig-line"></div>
+        <div class="sig-caption">Print name: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date:</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SECTION D: RETURN ──────────────────────────────────── -->
+<div class="form-section">
+  <div class="section-label">D — Equipment Return  <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0">(completed when device is returned)</span></div>
+  <div class="section-body">
+    <div class="field-row cols-3">
+      <div class="field">
+        <div class="field-label">Date Returned</div>
+        <div class="field-value"></div>
+      </div>
+      <div class="field">
+        <div class="field-label">Returned By</div>
+        <div class="field-value"></div>
+      </div>
+      <div class="field">
+        <div class="field-label">Received By</div>
+        <div class="field-value"></div>
+      </div>
+    </div>
+    <div class="field-row cols-1">
+      <div class="field">
+        <div class="field-label">Condition on Return</div>
+        <div class="condition-boxes">
+          <div class="condition-item"><div class="checkbox-box"></div> Good — no new damage</div>
+          <div class="condition-item"><div class="checkbox-box"></div> Fair — minor marks/wear</div>
+          <div class="condition-item"><div class="checkbox-box"></div> Damage noted below</div>
+        </div>
+      </div>
+    </div>
+    <div class="field-row cols-1">
+      <div class="field">
+        <div class="field-label">Damage / notes</div>
+        <div class="field-value-tall"></div>
+      </div>
+    </div>
+    <div class="sig-grid">
+      <div class="sig-block">
+        <div class="sig-label">Returned By (Signature)</div>
+        <div class="sig-line"></div>
+        <div class="sig-caption">Date:</div>
+      </div>
+      <div class="sig-block">
+        <div class="sig-label">Received &amp; Checked By</div>
+        <div class="sig-line"></div>
+        <div class="sig-caption">Date:</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ─────────────────────────────────────────────── -->
+<div class="form-footer">
+  <span>St Francis Mackworth · Derby Diocese · HTB Network</span>
+  <span>IT Equipment &amp; Acceptable Use Policy (Policy 36) · Version 1.0 · Review: June 2027</span>
+  <span>STF-IT-EIF</span>
+</div>
+
+</body>
+</html>
