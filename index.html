@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SFM Policy Hub</title>
+<title>STF Policy Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -42,33 +42,8 @@ a{color:var(--accent-mid);text-decoration:none}
 button{cursor:pointer;font-family:var(--font-sans)}
 input,textarea,select{font-family:var(--font-sans)}
 
-/* ── AUTH SCREEN ─────────────────────────────────────────── */
-#auth-screen{
-  position:fixed;inset:0;background:var(--ink);display:flex;align-items:center;justify-content:center;z-index:1000;
-}
-.auth-box{
-  background:var(--white);border-radius:16px;padding:48px 44px;width:100%;max-width:380px;text-align:center;
-}
-.auth-cross{
-  width:48px;height:48px;margin:0 auto 20px;
-  display:flex;align-items:center;justify-content:center;
-}
-.auth-cross svg{width:48px;height:48px}
-.auth-box h1{font-size:26px;margin-bottom:4px;color:var(--ink)}
-.auth-box p{font-size:13px;color:var(--muted);margin-bottom:28px}
-.auth-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:20px}
-.auth-tab{flex:1;padding:9px;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--muted);transition:all .15s}
-.auth-tab.active{background:var(--accent);color:#fff}
-.auth-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:12px;outline:none;transition:border-color .15s}
-.auth-input:focus{border-color:var(--accent-mid)}
-.auth-btn{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;transition:background .15s}
-.auth-btn:hover{background:var(--accent-mid)}
-.auth-error{color:var(--red);font-size:12px;margin-top:8px}
-.auth-hint{font-size:11px;color:var(--faint);margin-top:16px}
-
 /* ── LAYOUT ──────────────────────────────────────────────── */
-#app{display:none;min-height:100vh}
-#app.visible{display:flex}
+#app{display:flex;min-height:100vh}
 
 /* Sidebar */
 .sidebar{
@@ -314,33 +289,6 @@ textarea.form-input{resize:vertical;min-height:100px}
 </head>
 <body>
 
-<!-- ── AUTH SCREEN ──────────────────────────────────────── -->
-<div id="auth-screen">
-  <div class="auth-box">
-    <div class="auth-cross">
-      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="20" y="2" width="8" height="44" rx="4" fill="#1A3A6B"/>
-        <rect x="2" y="20" width="44" height="8" rx="4" fill="#1A3A6B"/>
-      </svg>
-    </div>
-    <h1>SFM Policy Hub</h1>
-    <p>St Francis Mackworth · Derby Diocese</p>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="setAuthMode('read')">View policies</button>
-      <button class="auth-tab" onclick="setAuthMode('admin')">Admin access</button>
-    </div>
-    <div id="auth-read">
-      <button class="auth-btn" onclick="login('read')">Enter as Reader</button>
-    </div>
-    <div id="auth-admin" style="display:none">
-      <input class="auth-input" type="password" id="admin-pw" placeholder="Admin password" onkeydown="if(event.key==='Enter')login('admin')">
-      <button class="auth-btn" onclick="login('admin')">Sign in as Admin</button>
-      <div class="auth-error" id="auth-error"></div>
-    </div>
-    <p class="auth-hint">Readers can view all policies · Admins can create, edit, and manage people</p>
-  </div>
-</div>
-
 <!-- ── APP ──────────────────────────────────────────────── -->
 <div id="app">
 
@@ -351,7 +299,7 @@ textarea.form-input{resize:vertical;min-height:100px}
         <rect x="13" y="1" width="6" height="30" rx="3" fill="rgba(255,255,255,0.85)"/>
         <rect x="1" y="13" width="30" height="6" rx="3" fill="rgba(255,255,255,0.85)"/>
       </svg>
-      <div class="sidebar-logo-name">SFM Policy Hub</div>
+      <div class="sidebar-logo-name">STF Policy Hub</div>
       <div class="sidebar-logo-sub">St Francis Mackworth</div>
     </div>
 
@@ -378,14 +326,10 @@ textarea.form-input{resize:vertical;min-height:100px}
         <span class="nav-badge gold" id="badge-pcc">0</span>
       </div>
 
-      <div class="nav-section">People</div>
-      <div class="nav-item" onclick="showPage('people')">
+      <div class="nav-section admin-only" style="display:none">People</div>
+      <div class="nav-item admin-only" style="display:none" onclick="showPage('people')">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.660.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
         People & Roles
-      </div>
-      <div class="nav-item" onclick="showPage('dbs')">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z" clip-rule="evenodd"/></svg>
-        DBS Register
       </div>
 
       <div class="nav-section admin-only" style="display:none">Admin</div>
@@ -396,8 +340,12 @@ textarea.form-input{resize:vertical;min-height:100px}
     </nav>
 
     <div class="sidebar-footer">
-      <div class="sidebar-role" id="sidebar-role-label">Loading…</div>
+      <div class="sidebar-role" id="sidebar-role-label">Reader</div>
       <div class="sidebar-name" id="sidebar-name-label"></div>
+      <div style="margin-top:10px">
+        <button id="sidebar-admin-btn" onclick="openAdminLogin()" style="width:100%;padding:7px 0;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.45);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='transparent'">Admin Login</button>
+        <button id="sidebar-logout-btn" onclick="adminLogout()" style="display:none;width:100%;padding:7px 0;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.45);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='transparent'">Sign Out</button>
+      </div>
     </div>
   </aside>
 
@@ -546,22 +494,6 @@ textarea.form-input{resize:vertical;min-height:100px}
       <div class="people-grid" id="people-grid"></div>
     </div>
 
-    <!-- ── DBS ────────────────────────────────────────────── -->
-    <div class="page" id="page-dbs">
-      <div class="alert alert-info" style="margin-bottom:20px">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-        DBS certificates are never retained — only the reference number, issue date, and level are stored, per ICO guidance.
-      </div>
-      <div class="card">
-        <table class="data-table" id="dbs-table">
-          <thead><tr>
-            <th>Name</th><th>Role</th><th>DBS Level</th><th>Issue Date</th><th>Ref Number</th><th>Status</th>
-          </tr></thead>
-          <tbody id="dbs-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-
     <!-- ── SETTINGS ───────────────────────────────────────── -->
     <div class="page" id="page-settings">
       <div class="editor-layout">
@@ -622,9 +554,10 @@ textarea.form-input{resize:vertical;min-height:100px}
 <script src="data.js"></script>
 <script>
 // ── STATE ─────────────────────────────────────────────────
-let role = null; // 'read' | 'admin'
+let role = 'read'; // 'read' | 'admin'
 let policies = [];
 let config = {};
+const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1re8xM9EE2Thk1avp5kdAjocThxGKs-HH';
 let editingId = null;
 let currentPage = 'dashboard';
 
@@ -649,39 +582,62 @@ function catCardClass(cat){
 }
 
 // ── AUTH ─────────────────────────────────────────────────
-function setAuthMode(m){
-  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',i===(m==='read'?0:1)));
-  document.getElementById('auth-read').style.display=m==='read'?'block':'none';
-  document.getElementById('auth-admin').style.display=m==='admin'?'block':'none';
+async function sha256(message){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(message));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
-function login(r){
-  if(r==='admin'){
-    const pw=document.getElementById('admin-pw').value;
-    if(pw!==config.adminPasswordHash){
-      document.getElementById('auth-error').textContent='Incorrect password';return;
-    }
+function openAdminLogin(){
+  document.getElementById('modal-title').textContent='Admin Login';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="admin-pw-input" placeholder="Admin password" onkeydown="if(event.key==='Enter')submitAdminLogin()">
+    </div>
+    <div id="admin-login-error" style="display:none;color:var(--red);font-size:12px;margin-top:8px"></div>
+  `;
+  document.getElementById('modal-foot').innerHTML=`
+    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="submitAdminLogin()">Sign In</button>
+  `;
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>document.getElementById('admin-pw-input')?.focus(),100);
+}
+async function submitAdminLogin(){
+  const pw=document.getElementById('admin-pw-input').value;
+  const hash=await sha256(pw);
+  if(hash!==config.adminPasswordHash){
+    const err=document.getElementById('admin-login-error');
+    err.style.display='block';err.textContent='Incorrect password';return;
   }
-  role=r;
-  document.getElementById('auth-screen').style.display='none';
-  document.getElementById('app').classList.add('visible');
-  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=role==='admin'?'':'none');
-  document.getElementById('sidebar-role-label').textContent=role==='admin'?'Administrator':'Reader';
-  document.getElementById('sidebar-name-label').textContent=config.people?.opsManager?.name||'';
-  init();
+  role='admin';
+  closeModal();
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display='');
+  document.getElementById('sidebar-role-label').textContent='Administrator';
+  document.getElementById('sidebar-admin-btn').style.display='none';
+  document.getElementById('sidebar-logout-btn').style.display='';
+  showPage(currentPage);
+}
+function adminLogout(){
+  role='read';
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');
+  document.getElementById('sidebar-role-label').textContent='Reader';
+  document.getElementById('sidebar-admin-btn').style.display='';
+  document.getElementById('sidebar-logout-btn').style.display='none';
+  if(['editor','settings','people'].includes(currentPage))showPage('library');
+  else showPage(currentPage);
 }
 
 // ── INIT ─────────────────────────────────────────────────
 function init(){
-  // Load from localStorage, fall back to bundled data
-  const stored = localStorage.getItem('sfm_policies');
-  const storedCfg = localStorage.getItem('sfm_config');
-  policies = stored ? JSON.parse(stored) : window.SFM_POLICIES.map(p=>({...p}));
-  config = storedCfg ? JSON.parse(storedCfg) : {...window.SFM_CONFIG};
+  const stored=localStorage.getItem('sfm_policies');
+  const storedCfg=localStorage.getItem('sfm_config');
+  policies=stored?JSON.parse(stored):window.STF_POLICIES.map(p=>({...p}));
+  config=storedCfg?JSON.parse(storedCfg):{...window.STF_CONFIG};
+  document.getElementById('sidebar-name-label').textContent=config.people?.opsManager?.name||'';
   renderDashboard();
   renderLibrary();
   renderCompliance();
   renderPeople();
-  renderDBS();
   renderSettings();
   updateBadges();
 }
@@ -702,9 +658,11 @@ function updateBadges(){
 const PAGE_TITLES={
   dashboard:'Dashboard',library:'Policy Library',editor:'Policy Editor',
   view:'Policy',compliance:'Compliance Tracker',people:'People & Roles',
-  dbs:'DBS Register',settings:'Church Settings'
+  settings:'Church Settings'
 };
 function showPage(p){
+  // Protect admin-only pages
+  if(['editor','settings','people'].includes(p)&&role!=='admin'){p='library';}
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
@@ -719,10 +677,51 @@ function showPage(p){
     actions.innerHTML=`<button class="btn btn-primary" onclick="openNewEditor()">+ New Policy</button>`;
   }
   if(p==='view'){
-    actions.innerHTML=`<button class="btn btn-secondary" onclick="showPage('library')">← Library</button>
-    ${role==='admin'?`<button class="btn btn-primary" onclick="openEditEditor(currentViewId)">Edit</button>`:''}
-    <button class="btn btn-ghost" onclick="window.print()">🖨 Print</button>`;
+    actions.innerHTML=`
+      <button class="btn btn-secondary" onclick="showPage('library')">← Library</button>
+      ${role==='admin'?`<button class="btn btn-primary" onclick="openEditEditor(currentViewId)">Edit</button>`:''}
+      <button class="btn btn-ghost" onclick="downloadPDF()">⬇ Save as PDF</button>
+      <a href="${DRIVE_FOLDER_URL}" target="_blank" class="btn btn-ghost">Drive Folder ↗</a>
+    `;
   }
+}
+
+// ── DATE / COMPLIANCE HELPERS ────────────────────────────
+function parseReviewDate(str){
+  const months={January:0,February:1,March:2,April:3,May:4,June:5,July:6,August:7,September:8,October:9,November:10,December:11};
+  if(!str)return null;
+  const parts=str.trim().split(' ');
+  if(parts.length===2&&months[parts[0]]!==undefined&&!isNaN(parts[1])){
+    return new Date(parseInt(parts[1]),months[parts[0]],1);
+  }
+  return null;
+}
+function buildComplianceAlerts(){
+  const today=new Date();
+  const in3=new Date();in3.setMonth(in3.getMonth()+3);
+  const in12=new Date();in12.setMonth(in12.getMonth()+12);
+  const overdue=policies.filter(p=>{const d=parseReviewDate(p.reviewDate);return d&&d<today;});
+  const dueSoon=policies.filter(p=>{const d=parseReviewDate(p.reviewDate);return d&&d>=today&&d<=in3;});
+  const dueYear=policies.filter(p=>{const d=parseReviewDate(p.reviewDate);return d&&d>in3&&d<=in12;});
+  const pcc=policies.filter(p=>p.pccRequired).length;
+  const items=[];
+  if(overdue.length>0)items.push({dot:'red',text:`${overdue.length} ${overdue.length===1?'policy is':'policies are'} overdue for review`,action:'View tracker'});
+  if(dueSoon.length>0)items.push({dot:'amber',text:`${dueSoon.length} ${dueSoon.length===1?'policy':'policies'} due for review within 3 months`,action:'View tracker'});
+  if(dueYear.length>0)items.push({dot:'amber',text:`${dueYear.length} ${dueYear.length===1?'policy':'policies'} due for review in the next 12 months`,action:'View tracker'});
+  items.push({dot:'amber',text:`${pcc} policies require formal PCC adoption`,action:'View tracker'});
+  if(overdue.length===0&&dueSoon.length===0&&dueYear.length===0){
+    items.push({dot:'green',text:`All ${policies.length} policies are current — no reviews due in the next 12 months`,action:''});
+  }
+  return items.slice(0,5);
+}
+
+// ── PDF DOWNLOAD ──────────────────────────────────────────
+function downloadPDF(){
+  openModal('Save Policy as PDF',
+    `<p style="font-size:14px;color:var(--slate);margin-bottom:14px">Your browser will open a print dialog. Set the destination to <strong>"Save as PDF"</strong> to download a formatted copy of this policy.</p>
+     <p style="font-size:14px;color:var(--slate)">To share with the team, drag the saved file into the <a href="${DRIVE_FOLDER_URL}" target="_blank" style="color:var(--accent-mid)">STF Google Drive folder ↗</a>.</p>`,
+    [{label:'Open Print Dialog',cls:'btn-primary',fn:()=>{closeModal();setTimeout(()=>window.print(),300);}}]
+  );
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────
@@ -738,14 +737,8 @@ function renderDashboard(){
     <div class="stat-card"><div class="stat-num" style="color:var(--green)">${custom}</div><div class="stat-label">Custom Policies Added</div></div>
   `;
   const comp=document.getElementById('dash-compliance');
-  const items=[
-    {dot:'amber',text:`${pcc} policies require formal PCC adoption`,action:'View compliance tracker'},
-    {dot:'green',text:'35 policies covering all major CofE compliance areas',action:''},
-    {dot:'amber',text:'Annual policy review due: April 2027',action:''},
-    {dot:'green',text:'Safeguarding policy includes Derby Diocese framework',action:''},
-    {dot:'amber',text:'Gift Aid declarations should be verified in ChurchSuite',action:''},
-  ];
-  comp.innerHTML=items.map(i=>`
+  const alerts=buildComplianceAlerts();
+  comp.innerHTML=alerts.map(i=>`
     <div class="compliance-item">
       <div class="compliance-dot ${i.dot}"></div>
       <div class="compliance-text">${i.text}</div>
@@ -944,7 +937,9 @@ function renderCategoryPicker(selected){
 
 function savePolicy(){
   const title=document.getElementById('ed-title').value.trim();
-  if(!title){alert('Please enter a policy title.');return;}
+  if(!title){openModal('Cannot Save','Please enter a policy title before saving.',[]);return;}
+  const validSections=editorSections.filter(s=>s.heading.trim()||s.body.trim());
+  if(validSections.length===0){openModal('Cannot Save','Please add at least one section with content before saving.',[]);return;}
   const policy={
     id:editingId||'custom_'+Date.now(),
     number:document.getElementById('ed-number').value.trim(),
@@ -956,7 +951,7 @@ function savePolicy(){
     reviewDate:document.getElementById('ed-review').value.trim(),
     owner:document.getElementById('ed-owner').value.trim(),
     status:document.getElementById('ed-status').value,
-    sections:editorSections.filter(s=>s.heading||s.body),
+    sections:validSections,
     custom:true,
     lastModified:new Date().toLocaleDateString('en-GB',{month:'long',year:'numeric'}),
   };
@@ -1036,24 +1031,6 @@ function renderPeople(){
   }
 }
 
-// ── DBS ───────────────────────────────────────────────────
-function renderDBS(){
-  const staff=(config.people?.staff||[]).filter(s=>s.dbs);
-  const tbody=document.getElementById('dbs-tbody');
-  if(!tbody)return;
-  tbody.innerHTML=staff.map(s=>`
-    <tr>
-      <td style="font-weight:600">${s.name}</td>
-      <td>${s.role}</td>
-      <td>${s.dbsLevel||'Enhanced'}</td>
-      <td>${s.dbsDate||'—'}</td>
-      <td style="font-family:monospace;font-size:12px">${s.dbsRef||'—'}</td>
-      <td><span class="badge badge-active">Active</span></td>
-    </tr>
-  `).join('');
-  if(!staff.length)tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">No DBS records yet. Add staff in Church Settings.</td></tr>`;
-}
-
 // ── SETTINGS ─────────────────────────────────────────────
 function renderSettings(){
   const ch=config.church||{};
@@ -1087,7 +1064,7 @@ function exportData(){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download='sfm-policy-data-'+new Date().toISOString().slice(0,10)+'.json';
+  a.download='stf-policy-data-'+new Date().toISOString().slice(0,10)+'.json';
   a.click();
 }
 function importData(event){
@@ -1097,14 +1074,20 @@ function importData(event){
   reader.onload=(e)=>{
     try{
       const data=JSON.parse(e.target.result);
-      if(data.policies)policies=data.policies;
-      if(data.config)config=data.config;
+      if(!data.policies||!Array.isArray(data.policies))throw new Error('No valid policies array found. This does not appear to be an STF Policy Hub export file.');
+      if(!data.config||typeof data.config!=='object')throw new Error('No valid config found. This does not appear to be an STF Policy Hub export file.');
+      policies=data.policies;
+      config=data.config;
       save();
-      renderDashboard();renderLibrary();renderCompliance();renderPeople();renderDBS();renderSettings();
-      alert('Data imported successfully — '+policies.length+' policies loaded.');
-    }catch(err){alert('Import failed: '+err.message);}
+      renderDashboard();renderLibrary();renderCompliance();renderPeople();renderSettings();
+      openModal('Import Successful',`${policies.length} policies loaded successfully.`,[]);
+    }catch(err){
+      openModal('Import Failed',`Could not import this file.<br><br><strong>Reason:</strong> ${err.message}`,[]);
+    }
   };
+  reader.onerror=()=>openModal('Import Failed','Could not read the file. Please try again.',[]);
   reader.readAsText(file);
+  event.target.value='';
 }
 
 // ── MODAL ─────────────────────────────────────────────────
@@ -1122,10 +1105,12 @@ function closeModal(){document.getElementById('modal').classList.remove('open')}
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
 // ── BOOT ─────────────────────────────────────────────────
-// Pre-load config for auth (so password check works)
-config = window.SFM_CONFIG;
-const storedCfg=localStorage.getItem('sfm_config');
-if(storedCfg)config={...config,...JSON.parse(storedCfg)};
+// Load config early (needed for admin password check)
+config={...window.STF_CONFIG};
+const _bootCfg=localStorage.getItem('sfm_config');
+if(_bootCfg){try{config={...config,...JSON.parse(_bootCfg)};}catch(e){}}
+// App loads immediately in read mode — no login required
+init();
 </script>
 </body>
 </html>

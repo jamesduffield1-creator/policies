@@ -34,14 +34,11 @@ window.STF_CONFIG = {
     staff: [
       { name: "James", role: "Operations Manager", startDate: "", dbs: true, dbsDate: "", dbsLevel: "Enhanced" },
     ],
-    dbsHolders: [],
-    keyholders: [],
   },
 
   // ── APP SETTINGS ────────────────────────────────────────────
-  adminPasswordHash: "STF072020", // change this
-  googleSheetsId: "", // paste your Google Sheet ID here after setup
-  googleApiKey: "",   // paste your API key here after setup
+  adminPasswordHash: "ba3c84162583215a838320a83540540090c7c980f4786c85ff80ae9ff73633c3", // SHA-256 hash — update via Settings
+  driveFolder: "https://drive.google.com/drive/folders/1re8xM9EE2Thk1avp5kdAjocThxGKs-HH",
 };
 
 // ============================================================
