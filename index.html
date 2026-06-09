@@ -457,19 +457,14 @@ textarea.form-input{resize:vertical;min-height:100px}
           <div class="card card-sm">
             <h4 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px">Category</h4>
             <div id="ed-categories" style="display:flex;flex-direction:column;gap:4px"></div>
+            <div id="ed-template-btn-wrap" style="margin-top:12px;display:none">
+              <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center" onclick="applyTemplate()">⚡ Apply <span id="ed-template-cat-name"></span> Template</button>
+            </div>
           </div>
           <div class="card card-sm" style="margin-top:14px">
-            <h4 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">Section Guide</h4>
-            <p style="font-size:12px;color:var(--slate);line-height:1.7">
-              Typical structure:<br>
-              1. Purpose / Scope<br>
-              2. Legal Framework<br>
-              3. Responsibilities<br>
-              4. Procedures<br>
-              5. Training<br>
-              6. Breach / Consequences<br>
-              7. Review
-            </p>
+            <h4 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">Emerging Topics</h4>
+            <p style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">Starting a brand-new policy area? Use one of these templates.</p>
+            <div id="ed-emerging-list"></div>
           </div>
         </div>
       </div>
@@ -552,6 +547,7 @@ textarea.form-input{resize:vertical;min-height:100px}
 </div>
 
 <script src="data.js"></script>
+<script src="suggestions.js"></script>
 <script>
 // ── STATE ─────────────────────────────────────────────────
 let role = 'read'; // 'read' | 'admin'
@@ -866,6 +862,7 @@ function openNewEditor(){
   document.getElementById('ed-delete-btn').style.display='none';
   renderEditorSections([{heading:'1. Purpose',body:''}]);
   renderCategoryPicker('Other');
+  renderEmergingTopics();
   showPage('editor');
 }
 function openEditEditor(id){
@@ -884,6 +881,7 @@ function openEditEditor(id){
   document.getElementById('ed-delete-btn').style.display=p.custom?'inline-flex':'none';
   renderEditorSections(p.sections||[{heading:'',body:''}]);
   renderCategoryPicker(p.category||'Other');
+  renderEmergingTopics();
   showPage('editor');
 }
 
@@ -896,6 +894,7 @@ function renderEditorSections(secs){
       <div class="section-editor-head">
         <span class="section-number">§${i+1}</span>
         <input class="form-input" style="flex:1;font-weight:600" type="text" value="${esc(s.heading)}" oninput="editorSections[${i}].heading=this.value" placeholder="Section heading">
+        <button class="btn btn-ghost btn-icon btn-sm" title="Suggest content for this section" onclick="openSectionSuggestions(${i})">💡</button>
         <button class="btn btn-ghost btn-icon btn-sm" onclick="moveSection(${i},-1)" ${i===0?'disabled':''}>↑</button>
         <button class="btn btn-ghost btn-icon btn-sm" onclick="moveSection(${i},1)" ${i===editorSections.length-1?'disabled':''}>↓</button>
         <button class="btn btn-danger btn-icon btn-sm" onclick="removeSection(${i})" ${editorSections.length<=1?'disabled':''}>✕</button>
@@ -933,6 +932,14 @@ function renderCategoryPicker(selected){
       <span style="font-size:13px;${selectedCat===c?'color:var(--accent);font-weight:600':'color:var(--slate)'}">${c}</span>
     </label>
   `).join('');
+  // Show/update the Apply Template button
+  const btnWrap=document.getElementById('ed-template-btn-wrap');
+  const catLabel=document.getElementById('ed-template-cat-name');
+  if(btnWrap){
+    const hasTpl=window.STF_SUGGESTIONS?.categories?.[selected];
+    btnWrap.style.display=hasTpl?'':'none';
+    if(catLabel)catLabel.textContent=selected;
+  }
 }
 
 function savePolicy(){
@@ -1100,6 +1107,108 @@ function openModal(title,body,actions=[]){
   document.getElementById('modal').classList.add('open');
 }
 function closeModal(){document.getElementById('modal').classList.remove('open')}
+
+// ── SUGGESTIONS ───────────────────────────────────────────
+let _suggestionPool=[]; // temp store for current modal's snippets
+
+function applyTemplate(){
+  if(!window.STF_SUGGESTIONS)return;
+  const template=window.STF_SUGGESTIONS.categories[selectedCat];
+  if(!template)return;
+  openModal(
+    'Apply template: '+selectedCat,
+    `<p style="font-size:13px;color:var(--slate);margin-bottom:10px">This will replace your current sections with the standard <strong>${selectedCat}</strong> template. Section headings are pre-filled — you write the content (tap 💡 on any section for best practice suggestions).</p>
+     <p style="font-size:13px;color:var(--amber-light);background:var(--amber-light);border:1px solid #FDE68A;padding:8px 10px;border-radius:6px;color:var(--amber)">⚠ This will overwrite any sections you've already written.</p>`,
+    [{label:'Apply Template',cls:'btn-primary',fn:()=>{
+      closeModal();
+      renderEditorSections(template.sections.map(h=>({heading:h,body:''})));
+    }}]
+  );
+}
+
+function applyEmergingTemplate(key){
+  if(!window.STF_SUGGESTIONS?.emerging?.[key])return;
+  const topic=window.STF_SUGGESTIONS.emerging[key];
+  openModal(
+    'New policy: '+key,
+    `<p style="font-size:13px;color:var(--slate);margin-bottom:10px">${topic.description}</p>
+     <p style="font-size:13px;color:var(--slate);margin-bottom:10px">Suggested category: <strong>${topic.suggestedCategory}</strong>. Section headings will be pre-filled — tap 💡 on any section for best practice content.</p>
+     <p style="font-size:13px;background:var(--amber-light);border:1px solid #FDE68A;padding:8px 10px;border-radius:6px;color:var(--amber)">⚠ This will overwrite any sections you've already written.</p>`,
+    [{label:'Apply & Set Category',cls:'btn-primary',fn:()=>{
+      closeModal();
+      renderEditorSections(topic.sections.map(h=>({heading:h,body:''})));
+      selectedCat=topic.suggestedCategory;
+      renderCategoryPicker(topic.suggestedCategory);
+    }}]
+  );
+}
+
+function renderEmergingTopics(){
+  const el=document.getElementById('ed-emerging-list');
+  if(!el)return;
+  if(!window.STF_SUGGESTIONS?.emerging){el.innerHTML='';return;}
+  const entries=Object.entries(window.STF_SUGGESTIONS.emerging);
+  el.innerHTML=entries.map(([key,topic],i)=>`
+    <div style="margin-bottom:8px;${i<entries.length-1?'padding-bottom:8px;border-bottom:1px solid var(--border)':''}">
+      <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px">${key}</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:5px;line-height:1.4">${topic.description}</div>
+      <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;font-size:11px" onclick="applyEmergingTemplate(${JSON.stringify(key)})">Use this template →</button>
+    </div>
+  `).join('');
+}
+
+function openSectionSuggestions(idx){
+  if(!window.STF_SUGGESTIONS)return;
+  const sec=editorSections[idx];
+  const heading=(sec?.heading||'').trim();
+  const catData=window.STF_SUGGESTIONS.categories[selectedCat];
+  const catSnippets=(catData?.snippets?.[heading])||[];
+  const normHead=heading.toLowerCase();
+  const transferable=(window.STF_SUGGESTIONS.transferable||[]).filter(s=>
+    s.keywords&&s.keywords.some(k=>normHead.includes(k))
+  );
+
+  _suggestionPool=[];
+  const renderSnip=(s,poolIdx)=>{
+    _suggestionPool[poolIdx]=s.body;
+    const preview=s.body.length>300?s.body.substring(0,300)+'\n…':s.body;
+    return `<div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px">
+      <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:6px">${esc(s.label)}</div>
+      <pre style="font-size:11px;color:var(--slate);white-space:pre-wrap;margin-bottom:8px;font-family:var(--font-sans);line-height:1.5;max-height:110px;overflow:hidden">${esc(preview)}</pre>
+      <button class="btn btn-secondary btn-sm" onclick="useSuggestion(${idx},${poolIdx})">Insert into section →</button>
+    </div>`;
+  };
+
+  let html='';
+  let pi=0;
+  if(catSnippets.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Best practice — ${esc(heading)}</div>`;
+    catSnippets.forEach(s=>{html+=renderSnip(s,pi++);});
+  }
+  if(transferable.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;${catSnippets.length?'margin-top:16px':''}">Transferable clauses</div>`;
+    transferable.forEach(s=>{html+=renderSnip(s,pi++);});
+  }
+  if(!html){
+    // No match — show all transferable as fallback
+    html=`<div class="alert alert-info" style="margin-bottom:12px;font-size:12px">No category-specific suggestions for this heading. Rename it to match a standard section name (e.g. "1. Statement of Commitment") to get targeted suggestions. All general clauses shown below.</div>`;
+    html+=`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">All transferable clauses</div>`;
+    (window.STF_SUGGESTIONS.transferable||[]).forEach(s=>{html+=renderSnip(s,pi++);});
+  }
+
+  document.getElementById('modal-title').textContent='💡 Suggestions — §'+(idx+1);
+  document.getElementById('modal-body').innerHTML=`<div style="overflow-y:auto;max-height:58vh">${html}</div>`;
+  document.getElementById('modal-foot').innerHTML=`<button class="btn btn-secondary" onclick="closeModal()">Close</button>`;
+  document.getElementById('modal').classList.add('open');
+}
+
+function useSuggestion(sectionIdx,snippetIdx){
+  const body=_suggestionPool[snippetIdx];
+  if(body===undefined)return;
+  editorSections[sectionIdx].body=body;
+  closeModal();
+  renderEditorSections(editorSections);
+}
 
 // ── UTILS ─────────────────────────────────────────────────
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
