@@ -5,34 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>STF Policy Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ── RESET & TOKENS ─────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --ink:#0C0F14;
-  --ink2:#1E2532;
-  --slate:#445566;
-  --muted:#7A8899;
-  --faint:#B8C4D0;
-  --border:#E2E8F0;
-  --surface:#F7F9FC;
-  --white:#FFFFFF;
-  --accent:#1A3A6B;
-  --accent-mid:#2563A8;
-  --accent-light:#EEF4FF;
-  --gold:#B8860B;
-  --gold-light:#FEF9EC;
-  --red:#C0392B;
-  --red-light:#FDF2F0;
-  --green:#1A6B40;
-  --green-light:#EDF7F2;
-  --amber:#B45309;
-  --amber-light:#FFFBEB;
-  --purple:#5B21B6;
-  --purple-light:#F5F0FF;
+  --ink:#1C1C1A;
+  --ink2:#2A2A28;
+  --slate:#5C5852;
+  --muted:#8C887E;
+  --faint:#C8C2B8;
+  --border:#E4DDD2;
+  --surface:#F5F2EB;
+  --white:#FEFEFC;
+  --accent:#1A3D2B;
+  --accent-mid:#2D6A4F;
+  --accent-light:#E8F2EC;
+  --gold:#9A6B1E;
+  --gold-light:#FDF5E4;
+  --red:#8B2430;
+  --red-light:#FAF0F1;
+  --green:#1A5C38;
+  --green-light:#EAF4EE;
+  --amber:#8B5B18;
+  --amber-light:#FDF3E4;
+  --purple:#452870;
+  --purple-light:#F2EDF8;
   --nav-w:240px;
-  --font-serif:'Crimson Pro',Georgia,serif;
+  --font-serif:'Playfair Display',Georgia,serif;
   --font-sans:'DM Sans',system-ui,sans-serif;
 }
 
@@ -47,13 +47,14 @@ input,textarea,select{font-family:var(--font-sans)}
 
 /* Sidebar */
 .sidebar{
-  width:var(--nav-w);flex-shrink:0;background:var(--ink);color:#fff;
+  width:var(--nav-w);flex-shrink:0;background:#1A3D2B;color:#fff;
   position:fixed;top:0;bottom:0;left:0;overflow-y:auto;z-index:50;
   display:flex;flex-direction:column;
+  box-shadow:2px 0 16px rgba(0,0,0,.15);
 }
 .sidebar-logo{
-  padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08);
-  background:linear-gradient(160deg,rgba(255,255,255,.04) 0%,transparent 100%);
+  padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,.10);
+  background:linear-gradient(160deg,rgba(255,255,255,.06) 0%,transparent 100%);
 }
 .sidebar-logo-name{font-family:var(--font-serif);font-size:18px;font-weight:600;color:#fff;line-height:1.2}
 .sidebar-logo-sub{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
@@ -69,15 +70,15 @@ nav{padding:12px 0;flex:1}
   border-left:3px solid transparent;
 }
 .nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
-.nav-item.active{background:rgba(255,255,255,.1);color:#fff;border-left-color:rgba(255,255,255,.5)}
+.nav-item.active{background:rgba(154,107,30,.18);color:#fff;border-left-color:#C8952E}
 .nav-item .nav-icon{width:16px;height:16px;opacity:.7;flex-shrink:0}
 .nav-item.active .nav-icon{opacity:1}
 .nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
 .nav-badge.gold{background:var(--gold)}
 
-.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08)}
-.sidebar-role{font-size:11px;color:rgba(255,255,255,.4)}
-.sidebar-name{font-size:13px;color:rgba(255,255,255,.8);font-weight:500}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.10)}
+.sidebar-role{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.05em;text-transform:uppercase}
+.sidebar-name{font-size:13px;color:rgba(255,255,255,.85);font-weight:500;font-family:var(--font-serif)}
 
 /* Main content */
 .main{margin-left:var(--nav-w);flex:1;min-height:100vh;display:flex;flex-direction:column}
@@ -85,13 +86,13 @@ nav{padding:12px 0;flex:1}
   background:var(--white);border-bottom:1px solid var(--border);
   padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:40;
-  box-shadow:0 1px 8px rgba(0,0,0,.05);
+  box-shadow:0 1px 8px rgba(26,61,43,.06);
 }
 .topbar-title{font-family:var(--font-serif);font-size:20px;font-weight:600;color:var(--ink)}
 .topbar-actions{display:flex;gap:10px;align-items:center}
 
 .page{padding:32px;flex:1;display:none}
-.page.active{display:block}
+.page.active{display:block;animation:fadeIn .25s ease both}
 
 /* ── BUTTONS ─────────────────────────────────────────────── */
 .btn{padding:8px 18px;border-radius:7px;font-size:13px;font-weight:500;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:7px}
@@ -125,7 +126,7 @@ nav{padding:12px 0;flex:1}
 
 /* ── SECTION HEADERS ─────────────────────────────────────── */
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.section-title{font-family:var(--font-serif);font-size:22px;font-weight:600;color:var(--ink)}
+.section-title{font-family:var(--font-serif);font-size:22px;font-weight:600;color:var(--ink);font-style:italic}
 
 /* ── BADGES / TAGS ───────────────────────────────────────── */
 .badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:600}
@@ -133,7 +134,7 @@ nav{padding:12px 0;flex:1}
 .badge-governance{background:var(--accent-light);color:var(--accent)}
 .badge-finance{background:var(--green-light);color:var(--green)}
 .badge-hr{background:var(--purple-light);color:var(--purple)}
-.badge-ops{background:#EFF6FF;color:#1D4ED8}
+.badge-ops{background:#EEF4FF;color:#1D4B8B}
 .badge-hs{background:var(--amber-light);color:var(--amber)}
 .badge-comms{background:#FFF7ED;color:#C2410C}
 .badge-pastoral{background:#FDF4FF;color:#7E22CE}
@@ -153,14 +154,14 @@ nav{padding:12px 0;flex:1}
 }
 .policy-card:hover{box-shadow:0 6px 22px rgba(0,0,0,.10);transform:translateY(-2px);border-color:var(--faint)}
 .policy-card-strip{height:4px;width:100%;flex-shrink:0}
-.policy-card.cat-Safeguarding .policy-card-strip{background:var(--red)}
-.policy-card.cat-Governance .policy-card-strip{background:var(--accent-mid)}
-.policy-card.cat-Finance .policy-card-strip{background:var(--green)}
-.policy-card.cat-HR .policy-card-strip{background:var(--purple)}
-.policy-card.cat-Operations .policy-card-strip{background:#2563EB}
-.policy-card.cat-HS .policy-card-strip{background:var(--amber)}
-.policy-card.cat-Comms .policy-card-strip{background:#EA580C}
-.policy-card.cat-Pastoral .policy-card-strip{background:#9333EA}
+.policy-card.cat-Safeguarding .policy-card-strip{background:#8B2430}
+.policy-card.cat-Governance .policy-card-strip{background:#1A3D2B}
+.policy-card.cat-Finance .policy-card-strip{background:#1A5C38}
+.policy-card.cat-HR .policy-card-strip{background:#452870}
+.policy-card.cat-Operations .policy-card-strip{background:#1D4B8B}
+.policy-card.cat-HS .policy-card-strip{background:#7A4510}
+.policy-card.cat-Comms .policy-card-strip{background:#9C3B12}
+.policy-card.cat-Pastoral .policy-card-strip{background:#6B2B7A}
 .policy-card-body{padding:16px 18px 18px;flex:1;display:flex;flex-direction:column}
 .policy-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
 .policy-num{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted)}
@@ -192,8 +193,8 @@ nav{padding:12px 0;flex:1}
   background:var(--white);border:1px solid var(--border);border-radius:12px;
   padding:36px 40px;margin-bottom:16px;
 }
-.policy-header-block h1{font-size:32px;margin:8px 0 10px;color:var(--ink)}
-.policy-header-block .tagline{font-style:italic;color:var(--slate);font-size:16px;margin-bottom:28px}
+.policy-header-block h1{font-size:32px;margin:8px 0 10px;color:var(--ink);font-style:italic}
+.policy-header-block .tagline{font-style:italic;color:var(--slate);font-size:15px;margin-bottom:28px;line-height:1.65}
 .meta-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--border);border-radius:8px;overflow:hidden}
 .meta-row{display:flex;border-bottom:1px solid var(--border)}
 .meta-row:last-child{border-bottom:none}
@@ -261,6 +262,21 @@ textarea.form-input{resize:vertical;min-height:100px}
 .compliance-text{flex:1;font-size:13px}
 .compliance-action{font-size:12px;color:var(--accent-mid);font-weight:500}
 
+/* ── PAGE-LOAD ANIMATIONS ────────────────────────────────── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+.fade-up{animation:fadeUp .4s ease both}
+.stat-card:nth-child(1){animation:fadeUp .35s .04s ease both}
+.stat-card:nth-child(2){animation:fadeUp .35s .10s ease both}
+.stat-card:nth-child(3){animation:fadeUp .35s .16s ease both}
+.stat-card:nth-child(4){animation:fadeUp .35s .22s ease both}
+
 /* ── MODAL ───────────────────────────────────────────────── */
 .modal-overlay{
   position:fixed;inset:0;background:rgba(12,15,20,.55);z-index:500;
@@ -316,8 +332,8 @@ textarea.form-input{resize:vertical;min-height:100px}
   <aside class="sidebar">
     <div class="sidebar-logo">
       <svg class="sidebar-cross" viewBox="0 0 32 32" fill="none">
-        <rect x="13" y="1" width="6" height="30" rx="3" fill="rgba(255,255,255,0.85)"/>
-        <rect x="1" y="13" width="30" height="6" rx="3" fill="rgba(255,255,255,0.85)"/>
+        <rect x="13" y="1" width="6" height="30" rx="3" fill="#C8952E"/>
+        <rect x="1" y="13" width="30" height="6" rx="3" fill="#C8952E"/>
       </svg>
       <div class="sidebar-logo-name">STF Policy Hub</div>
       <div class="sidebar-logo-sub">St Francis Mackworth</div>
@@ -872,8 +888,8 @@ function renderLibrary(){
       <div style="font-size:14px;font-weight:500">No policies match your search</div>
       <div style="font-size:12px;margin-top:4px">Try a different keyword or category</div>
     </div>`:
-  filtered.map(p=>`
-    <div class="policy-card ${catCardClass(p.category)}" onclick="viewPolicy('${p.id}')">
+  filtered.map((p,i)=>`
+    <div class="policy-card ${catCardClass(p.category)}" onclick="viewPolicy('${p.id}')" style="animation:fadeUp .35s ${(Math.min(i*.04,.4)).toFixed(2)}s ease both">
       <div class="policy-card-strip"></div>
       <div class="policy-card-body">
         <div class="policy-card-head">
