@@ -625,10 +625,29 @@ function adminLogout(){
 
 // ── INIT ─────────────────────────────────────────────────
 function init(){
-  const stored=localStorage.getItem('sfm_policies');
   const storedCfg=localStorage.getItem('sfm_config');
-  policies=stored?JSON.parse(stored):window.STF_POLICIES.map(p=>({...p}));
   config=storedCfg?JSON.parse(storedCfg):{...window.STF_CONFIG};
+
+  // Built-in policies always come from data.js so updates are
+  // immediately visible to all users on every page load.
+  // Only custom (user-created) policies are persisted in localStorage.
+  const builtIn=window.STF_POLICIES.map(p=>({...p}));
+
+  // One-time migration: if the old key exists, extract custom policies
+  // from it, save them under the new key, and remove the old key.
+  if(!localStorage.getItem('sfm_custom_policies')&&localStorage.getItem('sfm_policies')){
+    try{
+      const old=JSON.parse(localStorage.getItem('sfm_policies'));
+      const rescued=old.filter(p=>p.custom);
+      localStorage.setItem('sfm_custom_policies',JSON.stringify(rescued));
+    }catch(e){}
+    localStorage.removeItem('sfm_policies');
+  }
+
+  const storedCustom=localStorage.getItem('sfm_custom_policies');
+  const custom=storedCustom?JSON.parse(storedCustom):[];
+  policies=[...builtIn,...custom];
+
   document.getElementById('sidebar-name-label').textContent=config.people?.opsManager?.name||'';
   renderDashboard();
   renderLibrary();
@@ -639,7 +658,8 @@ function init(){
 }
 
 function save(){
-  localStorage.setItem('sfm_policies',JSON.stringify(policies));
+  // Only persist custom policies — built-ins always reload from data.js
+  localStorage.setItem('sfm_custom_policies',JSON.stringify(policies.filter(p=>p.custom)));
   localStorage.setItem('sfm_config',JSON.stringify(config));
   updateBadges();
 }
