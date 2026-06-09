@@ -53,6 +53,7 @@ input,textarea,select{font-family:var(--font-sans)}
 }
 .sidebar-logo{
   padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(160deg,rgba(255,255,255,.04) 0%,transparent 100%);
 }
 .sidebar-logo-name{font-family:var(--font-serif);font-size:18px;font-weight:600;color:#fff;line-height:1.2}
 .sidebar-logo-sub{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
@@ -84,6 +85,7 @@ nav{padding:12px 0;flex:1}
   background:var(--white);border-bottom:1px solid var(--border);
   padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:40;
+  box-shadow:0 1px 8px rgba(0,0,0,.05);
 }
 .topbar-title{font-family:var(--font-serif);font-size:20px;font-weight:600;color:var(--ink)}
 .topbar-actions{display:flex;gap:10px;align-items:center}
@@ -105,14 +107,21 @@ nav{padding:12px 0;flex:1}
 .btn-icon{width:32px;height:32px;padding:0;justify-content:center;align-items:center}
 
 /* ── CARDS ──────────────────────────────────────────────── */
-.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:24px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
 .card-sm{padding:16px 20px}
 
 /* ── STATS ROW ───────────────────────────────────────────── */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
-.stat-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px 24px}
-.stat-num{font-family:var(--font-serif);font-size:36px;font-weight:700;line-height:1;margin-bottom:4px}
-.stat-label{font-size:12px;color:var(--muted)}
+.stat-card{
+  background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px 24px;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);position:relative;overflow:hidden;
+  border-top:3px solid var(--border);transition:box-shadow .2s,transform .2s;
+}
+.stat-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-1px)}
+.stat-card-inner{display:flex;align-items:flex-start;justify-content:space-between}
+.stat-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-num{font-family:var(--font-serif);font-size:38px;font-weight:700;line-height:1;margin:10px 0 4px}
+.stat-label{font-size:12px;color:var(--muted);font-weight:500}
 
 /* ── SECTION HEADERS ─────────────────────────────────────── */
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
@@ -137,23 +146,29 @@ nav{padding:12px 0;flex:1}
 /* ── POLICY GRID ─────────────────────────────────────────── */
 .policy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
 .policy-card{
-  background:var(--white);border:1px solid var(--border);border-radius:10px;
-  padding:18px 20px;cursor:pointer;transition:all .15s;position:relative;
-  border-left:4px solid var(--border);
+  background:var(--white);border:1px solid var(--border);border-radius:12px;
+  cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .15s;
+  position:relative;overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);
 }
-.policy-card:hover{box-shadow:0 4px 18px rgba(0,0,0,.08);border-color:var(--faint)}
-.policy-card.cat-Safeguarding{border-left-color:var(--red)}
-.policy-card.cat-Governance{border-left-color:var(--accent-mid)}
-.policy-card.cat-Finance{border-left-color:var(--green)}
-.policy-card.cat-HR{border-left-color:var(--purple)}
-.policy-card.cat-Operations{border-left-color:#2563EB}
-.policy-card.cat-HS{border-left-color:var(--amber)}
-.policy-card.cat-Comms{border-left-color:#EA580C}
-.policy-card.cat-Pastoral{border-left-color:#9333EA}
-.policy-num{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
-.policy-title{font-family:var(--font-serif);font-size:16px;font-weight:600;color:var(--ink);margin-bottom:5px;line-height:1.3}
-.policy-tagline{font-size:12px;color:var(--slate);line-height:1.5;margin-bottom:12px}
-.policy-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.policy-card:hover{box-shadow:0 6px 22px rgba(0,0,0,.10);transform:translateY(-2px);border-color:var(--faint)}
+.policy-card-strip{height:4px;width:100%;flex-shrink:0}
+.policy-card.cat-Safeguarding .policy-card-strip{background:var(--red)}
+.policy-card.cat-Governance .policy-card-strip{background:var(--accent-mid)}
+.policy-card.cat-Finance .policy-card-strip{background:var(--green)}
+.policy-card.cat-HR .policy-card-strip{background:var(--purple)}
+.policy-card.cat-Operations .policy-card-strip{background:#2563EB}
+.policy-card.cat-HS .policy-card-strip{background:var(--amber)}
+.policy-card.cat-Comms .policy-card-strip{background:#EA580C}
+.policy-card.cat-Pastoral .policy-card-strip{background:#9333EA}
+.policy-card-body{padding:16px 18px 18px;flex:1;display:flex;flex-direction:column}
+.policy-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.policy-num{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted)}
+.policy-card-arrow{font-size:16px;color:var(--faint);transition:color .15s,transform .15s}
+.policy-card:hover .policy-card-arrow{color:var(--muted);transform:translateX(2px)}
+.policy-title{font-family:var(--font-serif);font-size:17px;font-weight:600;color:var(--ink);margin-bottom:5px;line-height:1.3}
+.policy-tagline{font-size:12px;color:var(--slate);line-height:1.55;margin-bottom:12px;flex:1}
+.policy-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:auto}
 
 /* ── SEARCH / FILTER BAR ─────────────────────────────────── */
 .filter-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
@@ -231,10 +246,15 @@ textarea.form-input{resize:vertical;min-height:100px}
 
 /* ── COMPLIANCE / DASHBOARD ──────────────────────────────── */
 .compliance-item{
-  display:flex;align-items:center;gap:12px;padding:13px 16px;
+  display:flex;align-items:center;gap:12px;padding:12px 16px;
   background:var(--white);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;
+  border-left:3px solid var(--border);transition:box-shadow .15s;
 }
-.compliance-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.compliance-item:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.compliance-item.dot-green{border-left-color:var(--green)}
+.compliance-item.dot-amber{border-left-color:#F59E0B}
+.compliance-item.dot-red{border-left-color:var(--red)}
+.compliance-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .compliance-dot.green{background:var(--green)}
 .compliance-dot.amber{background:#F59E0B}
 .compliance-dot.red{background:var(--red)}
@@ -750,15 +770,51 @@ function renderDashboard(){
   const pcc=policies.filter(p=>p.pccRequired).length;
   const custom=policies.filter(p=>p.custom).length;
   document.getElementById('dash-stats').innerHTML=`
-    <div class="stat-card"><div class="stat-num" style="color:var(--accent)">${total}</div><div class="stat-label">Total Policies</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--red)">${safeguarding}</div><div class="stat-label">Safeguarding Policies</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--gold)">${pcc}</div><div class="stat-label">Require PCC Adoption</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--green)">${custom}</div><div class="stat-label">Custom Policies Added</div></div>
+    <div class="stat-card" style="border-top-color:var(--accent-mid)">
+      <div class="stat-card-inner">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Total Policies</div>
+        <div class="stat-icon" style="background:var(--accent-light)">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="var(--accent-mid)"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.255 0 2.443.29 3.5.804V4.804zM10.5 14.804A7.968 7.968 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.969 7.969 0 0014.5 4c-1.255 0-2.443.29-3.5.804v10z"/></svg>
+        </div>
+      </div>
+      <div class="stat-num" style="color:var(--accent)">${total}</div>
+      <div class="stat-label">across ${Object.keys(policies.reduce((a,p)=>{a[p.category]=1;return a},{})).length} categories</div>
+    </div>
+    <div class="stat-card" style="border-top-color:var(--red)">
+      <div class="stat-card-inner">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Safeguarding</div>
+        <div class="stat-icon" style="background:var(--red-light)">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="var(--red)"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+        </div>
+      </div>
+      <div class="stat-num" style="color:var(--red)">${safeguarding}</div>
+      <div class="stat-label">policies in this category</div>
+    </div>
+    <div class="stat-card" style="border-top-color:var(--gold)">
+      <div class="stat-card-inner">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">PCC Adoption</div>
+        <div class="stat-icon" style="background:var(--gold-light)">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="var(--gold)"><path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z" clip-rule="evenodd"/></svg>
+        </div>
+      </div>
+      <div class="stat-num" style="color:var(--gold)">${pcc}</div>
+      <div class="stat-label">require formal PCC vote</div>
+    </div>
+    <div class="stat-card" style="border-top-color:var(--green)">
+      <div class="stat-card-inner">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Custom Added</div>
+        <div class="stat-icon" style="background:var(--green-light)">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="var(--green)"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+        </div>
+      </div>
+      <div class="stat-num" style="color:var(--green)">${custom}</div>
+      <div class="stat-label">${custom===1?'policy':'policies'} created in hub</div>
+    </div>
   `;
   const comp=document.getElementById('dash-compliance');
   const alerts=buildComplianceAlerts();
   comp.innerHTML=alerts.map(i=>`
-    <div class="compliance-item">
+    <div class="compliance-item dot-${i.dot}">
       <div class="compliance-dot ${i.dot}"></div>
       <div class="compliance-text">${i.text}</div>
       ${i.action?`<span class="compliance-action" style="cursor:pointer" onclick="showPage('compliance')">${i.action} →</span>`:''}
@@ -766,7 +822,7 @@ function renderDashboard(){
   `).join('');
   const recent=document.getElementById('dash-recent');
   recent.innerHTML=policies.slice(-5).reverse().map(p=>`
-    <div class="compliance-item" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
+    <div class="compliance-item dot-green" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
       <div style="flex:1">
         <div style="font-weight:600;font-size:13px">${p.number}. ${p.title}</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px">${p.category}</div>
@@ -777,12 +833,20 @@ function renderDashboard(){
   const catCounts={};
   policies.forEach(p=>{catCounts[p.category]=(catCounts[p.category]||0)+1});
   const catDiv=document.getElementById('dash-categories');
-  catDiv.innerHTML=Object.entries(catCounts).map(([cat,n])=>`
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 18px;cursor:pointer" onclick="filterLibraryTo('${cat}')">
-      ${catBadge(cat)}
-      <span style="font-size:22px;font-family:var(--font-serif);font-weight:600;margin-left:10px;vertical-align:middle">${n}</span>
+  const maxN=Math.max(...Object.values(catCounts));
+  catDiv.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;width:100%">
+  ${Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).map(([cat,n])=>`
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:box-shadow .15s,transform .15s" onclick="filterLibraryTo('${cat}')" onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,.08)';this.style.transform='translateY(-1px)'" onmouseout="this.style.boxShadow='';this.style.transform=''">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        ${catBadge(cat)}
+        <span style="font-size:22px;font-family:var(--font-serif);font-weight:700;color:var(--ink)">${n}</span>
+      </div>
+      <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+        <div style="height:100%;width:${Math.round((n/maxN)*100)}%;background:var(--accent-mid);border-radius:2px;transition:width .4s"></div>
+      </div>
     </div>
-  `).join('');
+  `).join('')}
+  </div>`;
 }
 
 // ── LIBRARY ───────────────────────────────────────────────
@@ -802,17 +866,28 @@ function renderLibrary(){
   });
   const grid=document.getElementById('lib-grid');
   if(!grid)return;
-  grid.innerHTML=filtered.length===0?'<div style="text-align:center;padding:60px;color:var(--muted)">No policies match your search</div>':
+  grid.innerHTML=filtered.length===0?`
+    <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted)">
+      <div style="font-size:32px;margin-bottom:12px">🔍</div>
+      <div style="font-size:14px;font-weight:500">No policies match your search</div>
+      <div style="font-size:12px;margin-top:4px">Try a different keyword or category</div>
+    </div>`:
   filtered.map(p=>`
     <div class="policy-card ${catCardClass(p.category)}" onclick="viewPolicy('${p.id}')">
-      <div class="policy-num">POLICY ${p.number}</div>
-      <div class="policy-title">${p.title}</div>
-      <div class="policy-tagline">${p.tagline||''}</div>
-      <div class="policy-meta">
-        ${catBadge(p.category)}
-        ${p.pccRequired?`<span class="badge badge-pcc">PCC Required</span>`:''}
-        ${p.custom?`<span class="badge" style="background:#F0FDF4;color:#166534">Custom</span>`:''}
-        <span style="margin-left:auto;font-size:11px;color:var(--muted)">Review: ${p.reviewDate}</span>
+      <div class="policy-card-strip"></div>
+      <div class="policy-card-body">
+        <div class="policy-card-head">
+          <div class="policy-num">POLICY ${p.number}</div>
+          <span class="policy-card-arrow">→</span>
+        </div>
+        <div class="policy-title">${p.title}</div>
+        <div class="policy-tagline">${p.tagline||''}</div>
+        <div class="policy-meta">
+          ${catBadge(p.category)}
+          ${p.pccRequired?`<span class="badge badge-pcc">PCC</span>`:''}
+          ${p.custom?`<span class="badge" style="background:#F0FDF4;color:#166534">Custom</span>`:''}
+          <span style="margin-left:auto;font-size:11px;color:var(--muted)">↻ ${p.reviewDate||'—'}</span>
+        </div>
       </div>
     </div>
   `).join('');
@@ -1010,7 +1085,7 @@ function deletePolicy(){
 function renderCompliance(){
   const pccPolicies=policies.filter(p=>p.pccRequired);
   document.getElementById('comp-pcc-list').innerHTML=pccPolicies.map(p=>`
-    <div class="compliance-item" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
+    <div class="compliance-item dot-amber" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
       <div class="compliance-dot amber"></div>
       <div class="compliance-text">
         <div style="font-weight:600">${p.number}. ${p.title}</div>
@@ -1021,7 +1096,7 @@ function renderCompliance(){
   `).join('');
   const sorted=[...policies].sort((a,b)=>Number(a.number||99)-Number(b.number||99));
   document.getElementById('comp-all-list').innerHTML=sorted.map(p=>`
-    <div class="compliance-item" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
+    <div class="compliance-item dot-green" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
       <div class="compliance-dot green"></div>
       <div class="compliance-text" style="font-size:12px">
         <strong>${p.number}. ${p.title}</strong>
