@@ -1,4 +1,4 @@
-# SFM Policy Hub
+# STF Policy Hub
 
 Policy management system for St Francis Mackworth, Derby.
 
