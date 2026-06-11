@@ -1212,12 +1212,17 @@ function importData(event){
 }
 
 // ── MODAL ─────────────────────────────────────────────────
+// Action callbacks are stored here and referenced by index from the inline
+// onclick, because fn.toString() in the markup would discard any closure
+// variables the callback captured (this previously broke Apply Template).
+let _modalActions=[];
 function openModal(title,body,actions=[]){
+  _modalActions=actions.map(a=>a.fn);
   document.getElementById('modal-title').textContent=title;
   document.getElementById('modal-body').innerHTML=`<p style="font-size:14px;color:var(--slate)">${body}</p>`;
   document.getElementById('modal-foot').innerHTML=
     `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>`+
-    actions.map(a=>`<button class="btn ${a.cls}" onclick="(${a.fn.toString()})()">${a.label}</button>`).join('');
+    actions.map((a,i)=>`<button class="btn ${a.cls}" onclick="_modalActions[${i}]()">${a.label}</button>`).join('');
   document.getElementById('modal').classList.add('open');
 }
 function closeModal(){document.getElementById('modal').classList.remove('open')}
