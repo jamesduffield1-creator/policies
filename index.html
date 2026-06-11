@@ -1316,11 +1316,16 @@ function renderEmergingTopics(){
   if(!el)return;
   if(!window.STF_SUGGESTIONS?.emerging){el.innerHTML='';return;}
   const entries=Object.entries(window.STF_SUGGESTIONS.emerging);
+  // Keys may contain spaces/ampersands (e.g. "AI & Technology Usage").
+  // Previously JSON.stringify wrapped the key in literal double quotes,
+  // which collided with the outer onclick="..." attribute and broke the
+  // handler. Encode for HTML attribute context and use single quotes.
+  const encodeKey=k=>esc(k).replace(/'/g,'&#39;');
   el.innerHTML=entries.map(([key,topic],i)=>`
     <div style="margin-bottom:8px;${i<entries.length-1?'padding-bottom:8px;border-bottom:1px solid var(--border)':''}">
-      <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px">${key}</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:5px;line-height:1.4">${topic.description}</div>
-      <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;font-size:11px" onclick="applyEmergingTemplate(${JSON.stringify(key)})">Use this template →</button>
+      <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px">${esc(key)}</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:5px;line-height:1.4">${esc(topic.description)}</div>
+      <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;font-size:11px" onclick="applyEmergingTemplate('${encodeKey(key)}')">Use this template →</button>
     </div>
   `).join('');
 }
