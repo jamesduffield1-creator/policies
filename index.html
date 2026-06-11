@@ -431,6 +431,13 @@ textarea.form-input{resize:vertical;min-height:100px}
         <div>
           <div class="card" style="margin-bottom:16px">
             <h3 style="font-family:var(--font-serif);font-size:18px;margin-bottom:20px" id="editor-title-heading">New Policy</h3>
+            <div class="alert alert-warn" id="ed-builtin-alert" style="display:none;margin-bottom:18px">
+              <span style="font-size:18px;line-height:1">⚠</span>
+              <div>
+                <div style="font-weight:600;margin-bottom:4px">You're editing a built-in policy</div>
+                <div style="font-size:12px;line-height:1.55">Built-in policies are managed in <code style="background:rgba(0,0,0,.05);padding:1px 5px;border-radius:3px;font-size:11px">data.js</code>. Changes saved here update the live session for drafting purposes, but <strong>will not survive a page reload</strong>. To keep your changes, use <strong>Save as copy</strong> to create a custom policy, or copy the wording into <code style="background:rgba(0,0,0,.05);padding:1px 5px;border-radius:3px;font-size:11px">data.js</code>.</div>
+              </div>
+            </div>
             <div class="form-grid form-grid-2">
               <div class="form-group">
                 <label class="form-label">Number</label>
@@ -482,8 +489,9 @@ textarea.form-input{resize:vertical;min-height:100px}
           </div>
           <div id="ed-sections"></div>
           <button class="add-section-btn" onclick="addSection()">+ Add Section</button>
-          <div style="margin-top:20px;display:flex;gap:10px">
+          <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
             <button class="btn btn-primary" onclick="savePolicy()">Save Policy</button>
+            <button class="btn btn-secondary" id="ed-save-copy-btn" onclick="savePolicyAsCopy()" style="display:none">Save as copy</button>
             <button class="btn btn-secondary" onclick="showPage('library')">Cancel</button>
             <button class="btn btn-danger" id="ed-delete-btn" onclick="deletePolicy()" style="display:none">Delete Policy</button>
           </div>
@@ -974,6 +982,8 @@ function openNewEditor(){
   document.getElementById('ed-status').value='active';
   document.getElementById('ed-pcc-toggle').classList.remove('on');
   document.getElementById('ed-delete-btn').style.display='none';
+  document.getElementById('ed-builtin-alert').style.display='none';
+  document.getElementById('ed-save-copy-btn').style.display='none';
   renderEditorSections([{heading:'1. Purpose',body:''}]);
   renderCategoryPicker('Other');
   renderEmergingTopics();
@@ -993,6 +1003,8 @@ function openEditEditor(id){
   document.getElementById('ed-status').value=p.status||'active';
   document.getElementById('ed-pcc-toggle').classList.toggle('on',!!p.pccRequired);
   document.getElementById('ed-delete-btn').style.display=p.custom?'inline-flex':'none';
+  document.getElementById('ed-builtin-alert').style.display=p.custom?'none':'flex';
+  document.getElementById('ed-save-copy-btn').style.display=p.custom?'none':'inline-flex';
   renderEditorSections(p.sections||[{heading:'',body:''}]);
   renderCategoryPicker(p.category||'Other');
   renderEmergingTopics();
@@ -1082,6 +1094,36 @@ function savePolicy(){
   } else {
     policies.push(policy);
   }
+  save();
+  renderLibrary();
+  renderDashboard();
+  renderCompliance();
+  viewPolicy(policy.id);
+}
+
+function savePolicyAsCopy(){
+  const title=document.getElementById('ed-title').value.trim();
+  if(!title){openModal('Cannot Save','Please enter a policy title before saving.',[]);return;}
+  const validSections=editorSections.filter(s=>s.heading.trim()||s.body.trim());
+  if(validSections.length===0){openModal('Cannot Save','Please add at least one section with content before saving.',[]);return;}
+  const original=editingId?policies.find(p=>p.id===editingId):null;
+  const copyTitle=title===(original?.title||'')?title+' (copy)':title;
+  const policy={
+    id:'custom_'+Date.now(),
+    number:String(Math.max(0,...policies.map(p=>parseInt(p.number,10)).filter(n=>!isNaN(n)))+1).padStart(2,'0'),
+    title:copyTitle,
+    tagline:document.getElementById('ed-tagline').value.trim(),
+    category:selectedCat,
+    pccRequired:document.getElementById('ed-pcc-toggle').classList.contains('on'),
+    version:document.getElementById('ed-version').value.trim()||'1.0',
+    reviewDate:document.getElementById('ed-review').value.trim(),
+    owner:document.getElementById('ed-owner').value.trim(),
+    status:document.getElementById('ed-status').value,
+    sections:validSections,
+    custom:true,
+    lastModified:new Date().toLocaleDateString('en-GB',{month:'long',year:'numeric'}),
+  };
+  policies.push(policy);
   save();
   renderLibrary();
   renderDashboard();
