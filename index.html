@@ -1204,6 +1204,11 @@ function renderSettings(){
   v('cfg-cw1',pp.churchwardens?.[0]?.name);v('cfg-cw2',pp.churchwardens?.[1]?.name);
 }
 function saveSettings(){
+  config.church=config.church||{};
+  config.people=config.people||{};
+  config.people.vicar=config.people.vicar||{};
+  config.people.opsManager=config.people.opsManager||{};
+  config.people.pso=config.people.pso||{};
   config.church.name=document.getElementById('cfg-name').value;
   config.church.diocese=document.getElementById('cfg-diocese').value;
   config.church.network=document.getElementById('cfg-network').value;
@@ -1211,7 +1216,9 @@ function saveSettings(){
   config.people.vicar.name=document.getElementById('cfg-vicar').value;
   config.people.opsManager.name=document.getElementById('cfg-ops').value;
   config.people.pso.name=document.getElementById('cfg-pso').value;
-  if(!config.people.churchwardens)config.people.churchwardens=[{},{} ];
+  if(!config.people.churchwardens)config.people.churchwardens=[{},{}];
+  if(!config.people.churchwardens[0])config.people.churchwardens[0]={};
+  if(!config.people.churchwardens[1])config.people.churchwardens[1]={};
   config.people.churchwardens[0].name=document.getElementById('cfg-cw1').value;
   config.people.churchwardens[1].name=document.getElementById('cfg-cw2').value;
   save();
