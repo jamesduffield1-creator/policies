@@ -972,6 +972,7 @@ function viewPolicy(id){
 // ── EDITOR ────────────────────────────────────────────────
 function openNewEditor(){
   editingId=null;
+  _activeEmergingKey=null;
   document.getElementById('editor-title-heading').textContent='New Policy';
   document.getElementById('ed-number').value=String(policies.length+1).padStart(2,'0');
   document.getElementById('ed-title').value='';
@@ -993,6 +994,7 @@ function openEditEditor(id){
   const p=policies.find(x=>x.id===id);
   if(!p)return;
   editingId=id;
+  _activeEmergingKey=null;
   document.getElementById('editor-title-heading').textContent='Editing: '+p.title;
   document.getElementById('ed-number').value=p.number||'';
   document.getElementById('ed-title').value=p.title||'';
@@ -1279,17 +1281,32 @@ function closeModal(){document.getElementById('modal').classList.remove('open')}
 // ── SUGGESTIONS ───────────────────────────────────────────
 let _suggestionPool=[]; // temp store for current modal's snippets
 
+// Section headings in template arrays are numbered ("1. Statement of
+// Commitment") but snippet keys in suggestions.js drop the number
+// ("Statement of Commitment"). Normalise so lookups match.
+function normSnippetKey(h){return (h||'').trim().replace(/^\d+\.\s*/,'');}
+function snippetsFor(snippetsObj,heading){
+  if(!snippetsObj)return [];
+  return snippetsObj[normSnippetKey(heading)]||snippetsObj[(heading||'').trim()]||[];
+}
+function buildSectionsFromTemplate(tpl){
+  return tpl.sections.map(h=>{
+    const matches=snippetsFor(tpl.snippets,h);
+    return {heading:h,body:matches[0]?.body||''};
+  });
+}
+
 function applyTemplate(){
   if(!window.STF_SUGGESTIONS)return;
   const template=window.STF_SUGGESTIONS.categories[selectedCat];
   if(!template)return;
   openModal(
     'Apply template: '+selectedCat,
-    `<p style="font-size:13px;color:var(--slate);margin-bottom:10px">This will replace your current sections with the standard <strong>${selectedCat}</strong> template. Section headings are pre-filled — you write the content (tap 💡 on any section for best practice suggestions).</p>
+    `<p style="font-size:13px;color:var(--slate);margin-bottom:10px">This will replace your current sections with the standard <strong>${selectedCat}</strong> template. Section headings are pre-filled with best-practice starter content — edit it to fit your context, or tap 💡 on any section for alternative wording.</p>
      <p style="font-size:13px;color:var(--amber-light);background:var(--amber-light);border:1px solid #FDE68A;padding:8px 10px;border-radius:6px;color:var(--amber)">⚠ This will overwrite any sections you've already written.</p>`,
     [{label:'Apply Template',cls:'btn-primary',fn:()=>{
       closeModal();
-      renderEditorSections(template.sections.map(h=>({heading:h,body:''})));
+      renderEditorSections(buildSectionsFromTemplate(template));
     }}]
   );
 }
@@ -1299,17 +1316,22 @@ function applyEmergingTemplate(key){
   const topic=window.STF_SUGGESTIONS.emerging[key];
   openModal(
     'New policy: '+key,
-    `<p style="font-size:13px;color:var(--slate);margin-bottom:10px">${topic.description}</p>
-     <p style="font-size:13px;color:var(--slate);margin-bottom:10px">Suggested category: <strong>${topic.suggestedCategory}</strong>. Section headings will be pre-filled — tap 💡 on any section for best practice content.</p>
+    `<p style="font-size:13px;color:var(--slate);margin-bottom:10px">${esc(topic.description)}</p>
+     <p style="font-size:13px;color:var(--slate);margin-bottom:10px">Suggested category: <strong>${esc(topic.suggestedCategory)}</strong>. Sections will be pre-filled with starter content — edit to fit your context, or tap 💡 on any section for alternative wording.</p>
      <p style="font-size:13px;background:var(--amber-light);border:1px solid #FDE68A;padding:8px 10px;border-radius:6px;color:var(--amber)">⚠ This will overwrite any sections you've already written.</p>`,
     [{label:'Apply & Set Category',cls:'btn-primary',fn:()=>{
       closeModal();
-      renderEditorSections(topic.sections.map(h=>({heading:h,body:''})));
+      renderEditorSections(buildSectionsFromTemplate(topic));
       selectedCat=topic.suggestedCategory;
       renderCategoryPicker(topic.suggestedCategory);
+      _activeEmergingKey=key;
     }}]
   );
 }
+
+// Tracks which emerging topic (if any) seeded the current editor — used
+// so the 💡 button can also surface that topic's snippets after apply.
+let _activeEmergingKey=null;
 
 function renderEmergingTopics(){
   const el=document.getElementById('ed-emerging-list');
@@ -1335,7 +1357,11 @@ function openSectionSuggestions(idx){
   const sec=editorSections[idx];
   const heading=(sec?.heading||'').trim();
   const catData=window.STF_SUGGESTIONS.categories[selectedCat];
-  const catSnippets=(catData?.snippets?.[heading])||[];
+  const catSnippets=snippetsFor(catData?.snippets,heading);
+  const emergingTopic=_activeEmergingKey
+    ? window.STF_SUGGESTIONS.emerging?.[_activeEmergingKey] : null;
+  const emergingSnippets=emergingTopic
+    ? snippetsFor(emergingTopic.snippets,heading) : [];
   const normHead=heading.toLowerCase();
   const transferable=(window.STF_SUGGESTIONS.transferable||[]).filter(s=>
     s.keywords&&s.keywords.some(k=>normHead.includes(k))
@@ -1351,21 +1377,25 @@ function openSectionSuggestions(idx){
       <button class="btn btn-secondary btn-sm" onclick="useSuggestion(${idx},${poolIdx})">Insert into section →</button>
     </div>`;
   };
+  const sectionLabel=(text,extraStyle='')=>`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;${extraStyle}">${text}</div>`;
 
   let html='';
   let pi=0;
+  if(emergingSnippets.length>0){
+    html+=sectionLabel(`${esc(_activeEmergingKey)} — ${esc(heading)}`);
+    emergingSnippets.forEach(s=>{html+=renderSnip(s,pi++);});
+  }
   if(catSnippets.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Best practice — ${esc(heading)}</div>`;
+    html+=sectionLabel(`Best practice — ${esc(heading)}`,html?'margin-top:16px':'');
     catSnippets.forEach(s=>{html+=renderSnip(s,pi++);});
   }
   if(transferable.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;${catSnippets.length?'margin-top:16px':''}">Transferable clauses</div>`;
+    html+=sectionLabel('Transferable clauses',html?'margin-top:16px':'');
     transferable.forEach(s=>{html+=renderSnip(s,pi++);});
   }
   if(!html){
-    // No match — show all transferable as fallback
-    html=`<div class="alert alert-info" style="margin-bottom:12px;font-size:12px">No category-specific suggestions for this heading. Rename it to match a standard section name (e.g. "1. Statement of Commitment") to get targeted suggestions. All general clauses shown below.</div>`;
-    html+=`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">All transferable clauses</div>`;
+    html=`<div class="alert alert-info" style="margin-bottom:12px;font-size:12px">No targeted suggestions for this heading. Rename it to match a standard section name (e.g. "Statement of Commitment") to get matches. All general clauses shown below.</div>`;
+    html+=sectionLabel('All transferable clauses');
     (window.STF_SUGGESTIONS.transferable||[]).forEach(s=>{html+=renderSnip(s,pi++);});
   }
 
