@@ -22,7 +22,7 @@
 | 03 | Deep linking & navigation | ✅ Done (`5b3b337`) |
 | 04 | Mobile & accessibility | ✅ Done (`acef1bb`, `d29069f`; Lighthouse run + native-button conversion deliberately deferred) |
 | 05 | Content & documentation | ✅ Done (`f8816b0`; p37 review-date decision still with James) |
-| 06 | Post-implementation audit fixes | **Open — do first.** Contains a P1: stale-config bug in `init()` means pushed config changes (incl. admin password hash) never reach browsers that saved Settings |
+| 06 | Post-implementation audit fixes | ✅ Done (`b0eb0dc`, `7a38769`, `0237f09`). All 7 items verified against live code first — none were false positives this round |
 | 07 | DBS register & expiry tracking | Open — feature; confirm scope with James first (incl. the personal-data-in-public-repo question) |
 | 08 | Annual review support | Open — small code items + recurring Claude-assisted content review; two date decisions pending James (p37 overdue, p42 due now) |
 
