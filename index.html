@@ -13,8 +13,8 @@
   --ink:#1C1C1A;
   --ink2:#2A2A28;
   --slate:#5C5852;
-  --muted:#8C887E;
-  --faint:#C8C2B8;
+  --muted:#7A766C;
+  --faint:#B8B2A8;
   --border:#E4DDD2;
   --surface:#F5F2EB;
   --white:#FEFEFC;
@@ -41,6 +41,14 @@ h1,h2,h3,h4{font-family:var(--font-serif);font-weight:600;line-height:1.25}
 a{color:var(--accent-mid);text-decoration:none}
 button{cursor:pointer;font-family:var(--font-sans)}
 input,textarea,select{font-family:var(--font-sans)}
+
+/* Visible focus ring everywhere — keyboard users need to see what's focused. */
+:focus-visible{outline:2px solid var(--accent-mid);outline-offset:2px;border-radius:4px}
+.policy-card:focus-visible,.compliance-item:focus-visible,.nav-item:focus-visible{outline-offset:-2px}
+
+/* Skip link — visible only when focused. */
+.skip-link{position:absolute;left:-9999px;top:8px;z-index:9999;background:var(--ink);color:#fff;padding:8px 14px;border-radius:6px;font-size:13px;font-weight:600}
+.skip-link:focus{left:8px}
 
 /* ── LAYOUT ──────────────────────────────────────────────── */
 #app{display:flex;min-height:100vh}
@@ -77,7 +85,7 @@ nav{padding:12px 0;flex:1}
 .nav-badge.gold{background:var(--gold)}
 
 .sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.10)}
-.sidebar-role{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.05em;text-transform:uppercase}
+.sidebar-role{font-size:10px;color:rgba(255,255,255,.6);letter-spacing:.05em;text-transform:uppercase}
 .sidebar-name{font-size:13px;color:rgba(255,255,255,.85);font-weight:500;font-family:var(--font-serif)}
 
 /* Main content */
@@ -324,6 +332,11 @@ textarea.form-input{resize:vertical;min-height:100px}
   .editor-sidebar{position:static}
 }
 
+/* ── REDUCED MOTION ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
 /* ── MOBILE (drawer) ─────────────────────────────────────── */
 .menu-toggle{display:none;background:transparent;border:none;color:var(--ink);padding:6px;border-radius:6px;align-items:center;justify-content:center;width:36px;height:36px;margin-right:4px}
 .menu-toggle:hover{background:var(--surface)}
@@ -356,13 +369,15 @@ textarea.form-input{resize:vertical;min-height:100px}
 </head>
 <body>
 
+<a class="skip-link" href="#main-content">Skip to content</a>
+
 <!-- ── APP ──────────────────────────────────────────────── -->
 <div id="app">
 
   <div class="sidebar-scrim" id="sidebar-scrim" onclick="closeSidebar()" aria-hidden="true"></div>
 
   <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
+  <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
     <div class="sidebar-logo">
       <svg class="sidebar-cross" viewBox="0 0 32 32" fill="none">
         <rect x="13" y="1" width="6" height="30" rx="3" fill="#C8952E"/>
@@ -374,35 +389,35 @@ textarea.form-input{resize:vertical;min-height:100px}
 
     <nav>
       <div class="nav-section">Overview</div>
-      <div class="nav-item active" onclick="showPage('dashboard')">
+      <div class="nav-item active" role="button" tabindex="0" onclick="showPage('dashboard')">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
         Dashboard
       </div>
 
       <div class="nav-section">Policies</div>
-      <div class="nav-item" onclick="showPage('library')">
+      <div class="nav-item" role="button" tabindex="0" onclick="showPage('library')">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.255 0 2.443.29 3.5.804V4.804zM10.5 14.804A7.968 7.968 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.969 7.969 0 0014.5 4c-1.255 0-2.443.29-3.5.804v10z"/></svg>
         Policy Library
         <span class="nav-badge" id="badge-total"></span>
       </div>
-      <div class="nav-item admin-only" onclick="openNewEditor()" style="display:none">
+      <div class="nav-item admin-only" role="button" tabindex="0" onclick="openNewEditor()" style="display:none">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
         New Policy
       </div>
-      <div class="nav-item" onclick="showPage('compliance')">
+      <div class="nav-item" role="button" tabindex="0" onclick="showPage('compliance')">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
         Compliance Tracker
         <span class="nav-badge gold" id="badge-pcc">0</span>
       </div>
 
       <div class="nav-section admin-only" style="display:none">People</div>
-      <div class="nav-item admin-only" style="display:none" onclick="showPage('people')">
+      <div class="nav-item admin-only" role="button" tabindex="0" style="display:none" onclick="showPage('people')">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.660.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
         People & Roles
       </div>
 
       <div class="nav-section admin-only" style="display:none">Admin</div>
-      <div class="nav-item admin-only" onclick="showPage('settings')" style="display:none">
+      <div class="nav-item admin-only" role="button" tabindex="0" onclick="showPage('settings')" style="display:none">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
         Church Settings
       </div>
@@ -419,7 +434,7 @@ textarea.form-input{resize:vertical;min-height:100px}
   </aside>
 
   <!-- Main -->
-  <div class="main">
+  <main class="main" id="main-content">
     <div class="topbar">
       <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="sidebar" onclick="toggleSidebar()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -457,7 +472,7 @@ textarea.form-input{resize:vertical;min-height:100px}
         <input class="search-input" type="text" id="lib-search" placeholder="Search policies…" oninput="renderLibrary()">
         <div id="lib-filters" style="display:flex;gap:6px;flex-wrap:wrap"></div>
       </div>
-      <div class="policy-grid" id="lib-grid"></div>
+      <div class="policy-grid" id="lib-grid" aria-live="polite" aria-busy="false"></div>
     </div>
 
     <!-- ── POLICY VIEW (full page) ───────────────────────── -->
@@ -632,15 +647,15 @@ textarea.form-input{resize:vertical;min-height:100px}
       </div>
     </div>
 
-  </div><!-- /main -->
+  </main><!-- /main -->
 </div><!-- /app -->
 
 <!-- ── MODAL ─────────────────────────────────────────────── -->
 <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-head">
       <span class="modal-title" id="modal-title">Confirm</span>
-      <button class="btn btn-ghost btn-icon btn-sm" onclick="closeModal()">✕</button>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="closeModal()" aria-label="Close dialog">✕</button>
     </div>
     <div class="modal-body" id="modal-body"></div>
     <div class="modal-foot" id="modal-foot"></div>
@@ -979,7 +994,7 @@ function renderDashboard(){
   `).join('');
   const recent=document.getElementById('dash-recent');
   recent.innerHTML=policies.slice(-5).reverse().map(p=>`
-    <div class="compliance-item dot-green" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
+    <div class="compliance-item dot-green" role="button" tabindex="0" aria-label="Open policy: ${esc(p.title)}" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
       <div style="flex:1">
         <div style="font-weight:600;font-size:13px">${esc(p.number)}. ${esc(p.title)}</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px">${esc(p.category)}</div>
@@ -993,7 +1008,7 @@ function renderDashboard(){
   const maxN=Math.max(...Object.values(catCounts));
   catDiv.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;width:100%">
   ${Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).map(([cat,n])=>`
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:box-shadow .15s,transform .15s" onclick="filterLibraryTo('${cat}')" onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,.08)';this.style.transform='translateY(-1px)'" onmouseout="this.style.boxShadow='';this.style.transform=''">
+    <div role="button" tabindex="0" aria-label="Filter library by ${esc(cat)}" style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:box-shadow .15s,transform .15s" onclick="filterLibraryTo('${cat}')" onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,.08)';this.style.transform='translateY(-1px)'" onmouseout="this.style.boxShadow='';this.style.transform=''">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         ${catBadge(cat)}
         <span style="font-size:22px;font-family:var(--font-serif);font-weight:700;color:var(--ink)">${n}</span>
@@ -1050,7 +1065,7 @@ function renderLibrary(){
       <div style="font-size:12px;margin-top:4px">Try a different keyword or category</div>
     </div>`:
   filtered.map(({p,snippet},i)=>`
-    <div class="policy-card ${catCardClass(p.category)}" onclick="viewPolicy('${p.id}')" style="animation:fadeUp .35s ${(Math.min(i*.04,.4)).toFixed(2)}s ease both">
+    <div class="policy-card ${catCardClass(p.category)}" role="button" tabindex="0" aria-label="Open policy: ${esc(p.title)}" onclick="viewPolicy('${p.id}')" style="animation:fadeUp .35s ${(Math.min(i*.04,.4)).toFixed(2)}s ease both">
       <div class="policy-card-strip"></div>
       <div class="policy-card-body">
         <div class="policy-card-head">
@@ -1242,10 +1257,10 @@ function renderEditorSections(secs){
       <div class="section-editor-head">
         <span class="section-number">§${i+1}</span>
         <input class="form-input" style="flex:1;font-weight:600" type="text" value="${esc(s.heading)}" oninput="editorSections[${i}].heading=this.value" placeholder="Section heading">
-        <button class="btn btn-ghost btn-icon btn-sm" title="Suggest content for this section" onclick="openSectionSuggestions(${i})">💡</button>
-        <button class="btn btn-ghost btn-icon btn-sm" onclick="moveSection(${i},-1)" ${i===0?'disabled':''}>↑</button>
-        <button class="btn btn-ghost btn-icon btn-sm" onclick="moveSection(${i},1)" ${i===editorSections.length-1?'disabled':''}>↓</button>
-        <button class="btn btn-danger btn-icon btn-sm" onclick="removeSection(${i})" ${editorSections.length<=1?'disabled':''}>✕</button>
+        <button class="btn btn-ghost btn-icon btn-sm" title="Suggest content for this section" aria-label="Suggest content for section ${i+1}" onclick="openSectionSuggestions(${i})">💡</button>
+        <button class="btn btn-ghost btn-icon btn-sm" aria-label="Move section ${i+1} up" onclick="moveSection(${i},-1)" ${i===0?'disabled':''}>↑</button>
+        <button class="btn btn-ghost btn-icon btn-sm" aria-label="Move section ${i+1} down" onclick="moveSection(${i},1)" ${i===editorSections.length-1?'disabled':''}>↓</button>
+        <button class="btn btn-danger btn-icon btn-sm" aria-label="Delete section ${i+1}" onclick="removeSection(${i})" ${editorSections.length<=1?'disabled':''}>✕</button>
       </div>
       <div class="section-editor-body">
         <textarea class="form-input" style="min-height:110px;font-family:var(--font-serif)" oninput="editorSections[${i}].body=this.value" placeholder="Section content…">${esc(s.body)}</textarea>
@@ -1365,7 +1380,7 @@ function deletePolicy(){
 function renderCompliance(){
   const pccPolicies=policies.filter(p=>p.pccRequired);
   document.getElementById('comp-pcc-list').innerHTML=pccPolicies.map(p=>`
-    <div class="compliance-item dot-amber" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
+    <div class="compliance-item dot-amber" role="button" tabindex="0" aria-label="Open policy: ${esc(p.title)}" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
       <div class="compliance-dot amber"></div>
       <div class="compliance-text">
         <div style="font-weight:600">${esc(p.number)}. ${esc(p.title)}</div>
@@ -1376,7 +1391,7 @@ function renderCompliance(){
   `).join('');
   const sorted=[...policies].sort((a,b)=>Number(a.number||99)-Number(b.number||99));
   document.getElementById('comp-all-list').innerHTML=sorted.map(p=>`
-    <div class="compliance-item dot-green" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
+    <div class="compliance-item dot-green" role="button" tabindex="0" aria-label="Open policy: ${esc(p.title)}" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
       <div class="compliance-dot green"></div>
       <div class="compliance-text" style="font-size:12px">
         <strong>${esc(p.number)}. ${esc(p.title)}</strong>
@@ -1407,7 +1422,7 @@ function renderPeople(){
     </div>
   `).join('');
   if(role==='admin'){
-    grid.innerHTML+=`<div class="person-card" style="border:1.5px dashed var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:120px" onclick="showPage('settings')">
+    grid.innerHTML+=`<div class="person-card" role="button" tabindex="0" aria-label="Update people in Settings" style="border:1.5px dashed var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:120px" onclick="showPage('settings')">
       <div style="text-align:center;color:var(--muted)">
         <div style="font-size:24px;margin-bottom:6px">+</div>
         <div style="font-size:13px">Update People</div>
@@ -1520,16 +1535,50 @@ function importData(event){
 // onclick, because fn.toString() in the markup would discard any closure
 // variables the callback captured (this previously broke Apply Template).
 let _modalActions=[];
+let _modalReturnFocus=null;
 function openModal(title,body,actions=[]){
   _modalActions=actions.map(a=>a.fn);
+  _modalReturnFocus=document.activeElement;
   document.getElementById('modal-title').textContent=title;
   document.getElementById('modal-body').innerHTML=`<p style="font-size:14px;color:var(--slate)">${body}</p>`;
   document.getElementById('modal-foot').innerHTML=
     `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>`+
     actions.map((a,i)=>`<button class="btn ${a.cls}" onclick="_modalActions[${i}]()">${a.label}</button>`).join('');
   document.getElementById('modal').classList.add('open');
+  // Move focus to the first focusable inside the modal so screen readers
+  // and keyboard users land in the dialog instead of behind it.
+  setTimeout(()=>{
+    const f=document.querySelectorAll('#modal input, #modal textarea, #modal select, #modal button, #modal [tabindex]:not([tabindex="-1"])');
+    (f[0]||document.querySelector('.modal'))?.focus();
+  },20);
 }
-function closeModal(){document.getElementById('modal').classList.remove('open')}
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  if(_modalReturnFocus&&typeof _modalReturnFocus.focus==='function'){
+    try{_modalReturnFocus.focus();}catch(e){}
+  }
+  _modalReturnFocus=null;
+}
+
+// Global keyboard handlers — activate role=button with Enter/Space,
+// close modal on Escape, trap focus inside an open modal.
+document.addEventListener('keydown',(e)=>{
+  const modal=document.getElementById('modal');
+  const modalOpen=modal?.classList.contains('open');
+  if(e.key==='Escape'&&modalOpen){closeModal();return;}
+  if((e.key==='Enter'||e.key===' ')&&e.target?.getAttribute('role')==='button'){
+    e.preventDefault();
+    e.target.click();
+    return;
+  }
+  if(e.key==='Tab'&&modalOpen){
+    const focusables=modal.querySelectorAll('input, textarea, select, button, [tabindex]:not([tabindex="-1"])');
+    if(!focusables.length)return;
+    const first=focusables[0],last=focusables[focusables.length-1];
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+  }
+});
 
 // ── SUGGESTIONS ───────────────────────────────────────────
 let _suggestionPool=[]; // temp store for current modal's snippets
