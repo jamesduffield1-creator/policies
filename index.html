@@ -168,7 +168,9 @@ nav{padding:12px 0;flex:1}
 .policy-card-arrow{font-size:16px;color:var(--faint);transition:color .15s,transform .15s}
 .policy-card:hover .policy-card-arrow{color:var(--muted);transform:translateX(2px)}
 .policy-title{font-family:var(--font-serif);font-size:16px;font-weight:600;color:var(--ink);margin-bottom:5px;line-height:1.3}
-.policy-tagline{font-size:12px;color:var(--slate);line-height:1.55;margin-bottom:12px;flex:1}
+.policy-tagline{font-size:12px;color:var(--slate);line-height:1.55;margin-bottom:8px;flex:1}
+.policy-snippet{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px;padding:6px 9px;background:var(--surface);border-left:2px solid var(--accent-mid);border-radius:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.policy-snippet mark{background:var(--gold-light);color:var(--ink);padding:0 2px;border-radius:2px;font-weight:600}
 .policy-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:auto}
 
 /* ── SEARCH / FILTER BAR ─────────────────────────────────── */
@@ -672,7 +674,7 @@ async function submitAdminLogin(){
   document.getElementById('sidebar-role-label').textContent='Administrator';
   document.getElementById('sidebar-admin-btn').style.display='none';
   document.getElementById('sidebar-logout-btn').style.display='';
-  showPage(currentPage);
+  showPage(currentPage,false);
 }
 function adminLogout(){
   role='read';
@@ -680,8 +682,10 @@ function adminLogout(){
   document.getElementById('sidebar-role-label').textContent='Reader';
   document.getElementById('sidebar-admin-btn').style.display='';
   document.getElementById('sidebar-logout-btn').style.display='none';
+  // If we were on an admin page, kick to library and update the URL.
+  // Otherwise just re-render in place.
   if(['editor','settings','people'].includes(currentPage))showPage('library');
-  else showPage(currentPage);
+  else showPage(currentPage,false);
 }
 
 // ── INIT ─────────────────────────────────────────────────
@@ -716,7 +720,59 @@ function init(){
   renderPeople();
   renderSettings();
   updateBadges();
+
+  // Deep-link from the URL. Use replaceState so the initial entry stays
+  // canonical and the user can't "back" out of the page into nothing.
+  applyUrlState({replace:true});
 }
+
+// Dispatch the page based on URL params. With {replace:true}, no new
+// history entry is created (used on first load and popstate).
+function applyUrlState({replace=false}={}){
+  const params=new URLSearchParams(location.search);
+  const policyId=params.get('policy');
+  const pageParam=params.get('page');
+  const READER_PAGES=['dashboard','library','compliance'];
+
+  if(policyId){
+    const exists=policies.some(p=>p.id===policyId);
+    if(exists){
+      viewPolicy(policyId,false);
+      if(replace)history.replaceState({policy:policyId},'',location.pathname+'?policy='+encodeURIComponent(policyId));
+      return;
+    }
+    // Unknown policy id — fall through to library with an alert.
+    showPage('library',false);
+    showMissingPolicyAlert(policyId);
+    if(replace)history.replaceState({page:'library'},'',location.pathname+'?page=library');
+    return;
+  }
+  if(pageParam&&READER_PAGES.includes(pageParam)){
+    showPage(pageParam,false);
+    if(replace){
+      const url=pageParam==='dashboard'?location.pathname:location.pathname+'?page='+pageParam;
+      history.replaceState({page:pageParam},'',url);
+    }
+    return;
+  }
+  showPage('dashboard',false);
+  if(replace)history.replaceState({page:'dashboard'},'',location.pathname);
+}
+
+function showMissingPolicyAlert(id){
+  const grid=document.getElementById('lib-grid');
+  if(!grid)return;
+  const banner=document.createElement('div');
+  banner.className='alert alert-warn';
+  banner.style.cssText='grid-column:1/-1;margin-bottom:8px;justify-content:space-between';
+  banner.innerHTML=`
+    <span><strong>That policy link wasn't found.</strong> The id <code style="background:rgba(0,0,0,.05);padding:1px 5px;border-radius:3px;font-size:11px">${esc(id)}</code> may belong to a custom policy on another device, or it may have been renamed.</span>
+    <button class="btn btn-ghost btn-sm" onclick="this.parentElement.remove()" style="margin-left:12px">Dismiss</button>
+  `;
+  grid.insertBefore(banner,grid.firstChild);
+}
+
+window.addEventListener('popstate',()=>applyUrlState({replace:false}));
 
 function save(){
   // Only persist custom policies — built-ins always reload from data.js
@@ -737,7 +793,7 @@ const PAGE_TITLES={
   view:'Policy',compliance:'Compliance Tracker',people:'People & Roles',
   settings:'Church Settings'
 };
-function showPage(p){
+function showPage(p,push=true){
   // Protect admin-only pages
   if(['editor','settings','people'].includes(p)&&role!=='admin'){p='library';}
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
@@ -748,6 +804,12 @@ function showPage(p){
   });
   document.getElementById('page-title').textContent=PAGE_TITLES[p]||p;
   currentPage=p;
+  // viewPolicy() handles its own pushState for ?policy=…; other pages
+  // get either ?page=… or the clean root for the dashboard.
+  if(push&&p!=='view'){
+    const url=p==='dashboard'?location.pathname:`${location.pathname}?page=${p}`;
+    history.pushState({page:p},'',url);
+  }
   const actions=document.getElementById('topbar-actions');
   actions.innerHTML='';
   if(p==='library'&&role==='admin'){
@@ -756,10 +818,12 @@ function showPage(p){
   if(p==='view'){
     const viewedPolicy=policies.find(x=>x.id===currentViewId);
     const isITPolicy=viewedPolicy?.id==='p36';
+    const isCustom=!!viewedPolicy?.custom;
     actions.innerHTML=`
       <button class="btn btn-secondary" onclick="showPage('library')">← Library</button>
       ${role==='admin'?`<button class="btn btn-primary" onclick="openEditEditor(currentViewId)">Edit</button>`:''}
       ${isITPolicy?`<a href="equipment-issue-form.html" target="_blank" class="btn btn-ghost">📋 Issue Form ↗</a>`:''}
+      <button class="btn btn-ghost" id="copy-link-btn" onclick="copyPolicyLink(${isCustom})">🔗 Copy link</button>
       <button class="btn btn-ghost" onclick="downloadPDF()">⬇ Save as PDF</button>
       <a href="${DRIVE_FOLDER_URL}" target="_blank" class="btn btn-ghost">Drive Folder ↗</a>
     `;
@@ -900,11 +964,31 @@ function renderLibrary(){
     filtersDiv.innerHTML=CATS.map(c=>`<button class="filter-pill ${libFilter===c?'active':''}" onclick="libFilter='${c}';renderLibrary()">${c}</button>`).join('');
   }
   const q2=q.toLowerCase();
-  const filtered=policies.filter(p=>{
-    const mCat=libFilter==='All'||p.category===libFilter;
-    const mQ=!q2||p.title.toLowerCase().includes(q2)||p.tagline?.toLowerCase().includes(q2)||p.category.toLowerCase().includes(q2);
-    return mCat&&mQ;
-  });
+  const filtered=[];
+  for(const p of policies){
+    if(libFilter!=='All'&&p.category!==libFilter)continue;
+    if(!q2){filtered.push({p,snippet:null});continue;}
+    const inMeta=p.title.toLowerCase().includes(q2)
+      ||p.tagline?.toLowerCase().includes(q2)
+      ||p.category.toLowerCase().includes(q2);
+    if(inMeta){filtered.push({p,snippet:null});continue;}
+    // Body match — find the section that contains the term and build a snippet.
+    let snippet=null;
+    for(const s of (p.sections||[])){
+      const blob=(s.heading||'')+' '+(s.body||'');
+      const idx=blob.toLowerCase().indexOf(q2);
+      if(idx>=0){
+        const start=Math.max(0,idx-30);
+        const end=Math.min(blob.length,idx+q2.length+50);
+        const before=esc(blob.slice(start,idx));
+        const hit=esc(blob.slice(idx,idx+q2.length));
+        const after=esc(blob.slice(idx+q2.length,end));
+        snippet=(start>0?'…':'')+before+'<mark>'+hit+'</mark>'+after+(end<blob.length?'…':'');
+        break;
+      }
+    }
+    if(snippet)filtered.push({p,snippet});
+  }
   const grid=document.getElementById('lib-grid');
   if(!grid)return;
   grid.innerHTML=filtered.length===0?`
@@ -913,7 +997,7 @@ function renderLibrary(){
       <div style="font-size:14px;font-weight:500">No policies match your search</div>
       <div style="font-size:12px;margin-top:4px">Try a different keyword or category</div>
     </div>`:
-  filtered.map((p,i)=>`
+  filtered.map(({p,snippet},i)=>`
     <div class="policy-card ${catCardClass(p.category)}" onclick="viewPolicy('${p.id}')" style="animation:fadeUp .35s ${(Math.min(i*.04,.4)).toFixed(2)}s ease both">
       <div class="policy-card-strip"></div>
       <div class="policy-card-body">
@@ -923,6 +1007,7 @@ function renderLibrary(){
         </div>
         <div class="policy-title">${esc(p.title)}</div>
         <div class="policy-tagline">${esc(p.tagline||'')}</div>
+        ${snippet?`<div class="policy-snippet">${snippet}</div>`:''}
         <div class="policy-meta">
           ${catBadge(p.category)}
           ${p.pccRequired?`<span class="badge badge-pcc">PCC</span>`:''}
@@ -936,10 +1021,34 @@ function renderLibrary(){
 
 // ── POLICY VIEW ───────────────────────────────────────────
 let currentViewId=null;
-function viewPolicy(id){
+function copyPolicyLink(isCustom){
+  if(!currentViewId)return;
+  const url=location.origin+location.pathname+'?policy='+encodeURIComponent(currentViewId);
+  const btn=document.getElementById('copy-link-btn');
+  const flash=(label,extra='')=>{
+    if(!btn)return;
+    const orig=btn.innerHTML;
+    btn.innerHTML=label+extra;
+    btn.disabled=true;
+    setTimeout(()=>{btn.innerHTML=orig;btn.disabled=false;},isCustom?3000:1600);
+  };
+  const suffix=isCustom?' <span style="font-weight:400;opacity:.75">— only works on this device</span>':'';
+  if(navigator.clipboard?.writeText){
+    navigator.clipboard.writeText(url).then(
+      ()=>flash('✓ Copied',suffix),
+      ()=>{prompt('Copy this link:',url);}
+    );
+  } else {
+    prompt('Copy this link:',url);
+  }
+}
+function viewPolicy(id,push=true){
   const p=policies.find(x=>x.id===id);
   if(!p)return;
   currentViewId=id;
+  if(push){
+    history.pushState({policy:id},'',`${location.pathname}?policy=${encodeURIComponent(id)}`);
+  }
   const metaRows=[
     ['Applies to','All volunteers and staff at St Francis Mackworth'],
     ['Approved by',p.pccRequired?'PCC':'Operations Manager'],
@@ -983,7 +1092,7 @@ function viewPolicy(id){
     </div>
   `;
   document.getElementById('policy-view-content').innerHTML=html;
-  showPage('view');
+  showPage('view',false);
 }
 
 // ── EDITOR ────────────────────────────────────────────────
