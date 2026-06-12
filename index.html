@@ -848,8 +848,8 @@ function renderDashboard(){
   recent.innerHTML=policies.slice(-5).reverse().map(p=>`
     <div class="compliance-item dot-green" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
       <div style="flex:1">
-        <div style="font-weight:600;font-size:13px">${p.number}. ${p.title}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">${p.category}</div>
+        <div style="font-weight:600;font-size:13px">${esc(p.number)}. ${esc(p.title)}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${esc(p.category)}</div>
       </div>
       ${catBadge(p.category)}
     </div>
@@ -901,16 +901,16 @@ function renderLibrary(){
       <div class="policy-card-strip"></div>
       <div class="policy-card-body">
         <div class="policy-card-head">
-          <div class="policy-num">POLICY ${p.number}</div>
+          <div class="policy-num">POLICY ${esc(p.number)}</div>
           <span class="policy-card-arrow">→</span>
         </div>
-        <div class="policy-title">${p.title}</div>
-        <div class="policy-tagline">${p.tagline||''}</div>
+        <div class="policy-title">${esc(p.title)}</div>
+        <div class="policy-tagline">${esc(p.tagline||'')}</div>
         <div class="policy-meta">
           ${catBadge(p.category)}
           ${p.pccRequired?`<span class="badge badge-pcc">PCC</span>`:''}
           ${p.custom?`<span class="badge" style="background:#F0FDF4;color:#166534">Custom</span>`:''}
-          <span style="margin-left:auto;font-size:11px;color:var(--muted)">↻ ${p.reviewDate||'—'}</span>
+          <span style="margin-left:auto;font-size:11px;color:var(--muted)">↻ ${esc(p.reviewDate||'—')}</span>
         </div>
       </div>
     </div>
@@ -941,28 +941,28 @@ function viewPolicy(id){
         ${p.custom?`<span class="badge" style="background:#F0FDF4;color:#166534">Custom Policy</span>`:''}
       </div>
       <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">
-        ${config.church?.name||'St Francis Mackworth'} · Policy ${p.number}
+        ${esc(config.church?.name||'St Francis Mackworth')} · Policy ${esc(p.number)}
       </div>
-      <h1>${p.title}</h1>
-      <p class="tagline">${p.tagline||''}</p>
+      <h1>${esc(p.title)}</h1>
+      <p class="tagline">${esc(p.tagline||'')}</p>
       <div class="meta-grid">
         ${metaRows.map((r,i)=>`
           <div class="meta-row">
-            <div class="meta-key">${r[0]}</div>
-            <div class="meta-val">${r[1]}</div>
+            <div class="meta-key">${esc(r[0])}</div>
+            <div class="meta-val">${esc(r[1])}</div>
           </div>
         `).join('')}
       </div>
     </div>
     ${(p.sections||[]).map(s=>`
       <div class="policy-section">
-        <div class="policy-section-head"><h3>${s.heading}</h3></div>
-        <div class="policy-section-body"><p>${s.body}</p></div>
+        <div class="policy-section-head"><h3>${esc(s.heading)}</h3></div>
+        <div class="policy-section-body"><p>${esc(s.body)}</p></div>
       </div>
     `).join('')}
     <div style="margin-top:20px;padding:14px 0;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
-      <span>${config.church?.name||'St Francis Mackworth'} · ${config.church?.diocese||'Derby Diocese'} · Version ${p.version||'1.0'}</span>
-      <span>Review: ${p.reviewDate||'April 2027'}</span>
+      <span>${esc(config.church?.name||'St Francis Mackworth')} · ${esc(config.church?.diocese||'Derby Diocese')} · Version ${esc(p.version||'1.0')}</span>
+      <span>Review: ${esc(p.reviewDate||'April 2027')}</span>
     </div>
   `;
   document.getElementById('policy-view-content').innerHTML=html;
@@ -970,11 +970,16 @@ function viewPolicy(id){
 }
 
 // ── EDITOR ────────────────────────────────────────────────
+function nextPolicyNumber(){
+  const nums=policies.map(p=>parseInt(p.number,10)).filter(n=>!isNaN(n));
+  return String((nums.length?Math.max(...nums):0)+1).padStart(2,'0');
+}
+
 function openNewEditor(){
   editingId=null;
   _activeEmergingKey=null;
   document.getElementById('editor-title-heading').textContent='New Policy';
-  document.getElementById('ed-number').value=String(policies.length+1).padStart(2,'0');
+  document.getElementById('ed-number').value=nextPolicyNumber();
   document.getElementById('ed-title').value='';
   document.getElementById('ed-tagline').value='';
   document.getElementById('ed-version').value='1.0';
@@ -1112,7 +1117,7 @@ function savePolicyAsCopy(){
   const copyTitle=title===(original?.title||'')?title+' (copy)':title;
   const policy={
     id:'custom_'+Date.now(),
-    number:String(Math.max(0,...policies.map(p=>parseInt(p.number,10)).filter(n=>!isNaN(n)))+1).padStart(2,'0'),
+    number:nextPolicyNumber(),
     title:copyTitle,
     tagline:document.getElementById('ed-tagline').value.trim(),
     category:selectedCat,
@@ -1136,7 +1141,7 @@ function savePolicyAsCopy(){
 function deletePolicy(){
   const p=policies.find(x=>x.id===editingId);
   if(!p?.custom){alert('Built-in policies cannot be deleted.');return;}
-  openModal('Delete policy','Are you sure you want to permanently delete "'+p.title+'"? This cannot be undone.',
+  openModal('Delete policy','Are you sure you want to permanently delete "'+esc(p.title)+'"? This cannot be undone.',
     [{label:'Delete',cls:'btn-danger',fn:()=>{policies=policies.filter(x=>x.id!==editingId);save();closeModal();showPage('library');renderLibrary();}}]
   );
 }
@@ -1148,8 +1153,8 @@ function renderCompliance(){
     <div class="compliance-item dot-amber" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
       <div class="compliance-dot amber"></div>
       <div class="compliance-text">
-        <div style="font-weight:600">${p.number}. ${p.title}</div>
-        <div style="font-size:11px;color:var(--muted)">Owner: ${p.owner||'Operations Manager'}</div>
+        <div style="font-weight:600">${esc(p.number)}. ${esc(p.title)}</div>
+        <div style="font-size:11px;color:var(--muted)">Owner: ${esc(p.owner||'Operations Manager')}</div>
       </div>
       <span class="badge badge-pcc">PCC Required</span>
     </div>
@@ -1159,8 +1164,8 @@ function renderCompliance(){
     <div class="compliance-item dot-green" style="cursor:pointer" onclick="viewPolicy('${p.id}')">
       <div class="compliance-dot green"></div>
       <div class="compliance-text" style="font-size:12px">
-        <strong>${p.number}. ${p.title}</strong>
-        <span style="color:var(--muted);margin-left:8px">v${p.version||'1.0'}</span>
+        <strong>${esc(p.number)}. ${esc(p.title)}</strong>
+        <span style="color:var(--muted);margin-left:8px">v${esc(p.version||'1.0')}</span>
       </div>
       ${catBadge(p.category)}
     </div>
@@ -1180,10 +1185,10 @@ function renderPeople(){
   const grid=document.getElementById('people-grid');
   grid.innerHTML=cards.map(c=>`
     <div class="person-card">
-      <div class="person-role">${c.role}</div>
-      <div class="person-name">${c.p.name||'[Not set]'}</div>
-      ${c.p.email?`<div class="person-email">${c.p.email}</div>`:''}
-      ${c.dbs?`<span class="person-dbs valid">✓ DBS ${c.dbsLevel||'Enhanced'} — ${c.dbsDate||'date TBC'}</span>`:''}
+      <div class="person-role">${esc(c.role)}</div>
+      <div class="person-name">${esc(c.p.name||'[Not set]')}</div>
+      ${c.p.email?`<div class="person-email">${esc(c.p.email)}</div>`:''}
+      ${c.dbs?`<span class="person-dbs valid">✓ DBS ${esc(c.dbsLevel||'Enhanced')} — ${esc(c.dbsDate||'date TBC')}</span>`:''}
     </div>
   `).join('');
   if(role==='admin'){
@@ -1414,7 +1419,7 @@ function useSuggestion(sectionIdx,snippetIdx){
 }
 
 // ── UTILS ─────────────────────────────────────────────────
-function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 
 // ── BOOT ─────────────────────────────────────────────────
 // Load config early (needed for admin password check)
