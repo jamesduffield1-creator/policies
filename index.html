@@ -884,12 +884,14 @@ function showPage(p,push=true){
   }
   if(p==='view'){
     const viewedPolicy=policies.find(x=>x.id===currentViewId);
-    const isITPolicy=viewedPolicy?.id==='p36';
     const isCustom=!!viewedPolicy?.custom;
+    const rf=viewedPolicy?.relatedForm;
+    const relatedFormBtn=(rf&&typeof rf.href==='string'&&typeof rf.label==='string')
+      ? `<a href="${esc(rf.href)}" target="_blank" class="btn btn-ghost">${esc(rf.label)} ↗</a>` : '';
     actions.innerHTML=`
       <button class="btn btn-secondary" onclick="showPage('library')">← Library</button>
       ${role==='admin'?`<button class="btn btn-primary" onclick="openEditEditor(currentViewId)">Edit</button>`:''}
-      ${isITPolicy?`<a href="equipment-issue-form.html" target="_blank" class="btn btn-ghost">📋 Issue Form ↗</a>`:''}
+      ${relatedFormBtn}
       <button class="btn btn-ghost" id="copy-link-btn" onclick="copyPolicyLink(${isCustom})">🔗 Copy link</button>
       <button class="btn btn-ghost" onclick="downloadPDF()">⬇ Save as PDF</button>
       <a href="${DRIVE_FOLDER_URL}" target="_blank" class="btn btn-ghost">Drive Folder ↗</a>

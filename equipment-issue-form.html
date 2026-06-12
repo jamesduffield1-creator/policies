@@ -5,18 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IT Equipment Issue Form — St Francis Mackworth</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --ink: #0C0F14;
-    --slate: #445566;
-    --muted: #7A8899;
-    --border: #C8D4E0;
-    --surface: #F7F9FC;
-    --accent: #1A3A6B;
-    --font-serif: 'Crimson Pro', Georgia, serif;
+    --ink: #1C1C1A;
+    --slate: #5C5852;
+    --muted: #7A766C;
+    --border: #E4DDD2;
+    --surface: #F5F2EB;
+    --accent: #1A3D2B;
+    --accent-light: #E8F2EC;
+    --accent-border: #C8D9CE;
+    --font-serif: 'Playfair Display', Georgia, serif;
     --font-sans: 'DM Sans', system-ui, sans-serif;
   }
 
@@ -123,10 +125,10 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--accent);
-    background: #EEF4FF;
+    background: var(--accent-light);
     padding: 4px 10px;
     border-radius: 4px 4px 0 0;
-    border: 1px solid #BFDBFE;
+    border: 1px solid var(--accent-border);
     border-bottom: none;
     display: inline-block;
     margin-bottom: -1px;
@@ -287,8 +289,8 @@
 <div class="form-header">
   <div class="church-name-wrap">
     <svg class="cross-svg" viewBox="0 0 32 32" fill="none">
-      <rect x="13" y="1" width="6" height="30" rx="3" fill="#1A3A6B"/>
-      <rect x="1" y="13" width="30" height="6" rx="3" fill="#1A3A6B"/>
+      <rect x="13" y="1" width="6" height="30" rx="3" fill="#C8952E"/>
+      <rect x="1" y="13" width="30" height="6" rx="3" fill="#C8952E"/>
     </svg>
     <div>
       <div class="church-name">St Francis Mackworth</div>

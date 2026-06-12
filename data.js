@@ -474,6 +474,7 @@ window.STF_POLICIES = [
     tagline:"Governing the responsible use of church-provided IT equipment by volunteers and staff",
     category:"Operations", pccRequired:true, version:"1.0", reviewDate:"June 2027",
     owner:"Operations Manager", status:"active",
+    relatedForm:{label:"📋 Issue Form", href:"equipment-issue-form.html"},
     sections:[
       {heading:"1. Purpose", body:"This policy governs the use of IT equipment provided by St Francis Mackworth (STF) to volunteers and staff to enable them to fulfil their roles. It sets out the responsibilities of those who hold church equipment, the rules for acceptable use, and the procedures for returning equipment when a role ends.\n\nThis policy exists to protect the church's data and digital systems, to meet our obligations under UK GDPR, and to maintain good safeguarding practice. It applies from the moment equipment is issued and remains in force until the equipment is returned."},
       {heading:"2. Scope", body:"This policy applies to:\n• All volunteers and staff who have been issued church-owned IT equipment (laptops, tablets, mobile phones, or other devices)\n• All church-owned accounts and software accessed on those devices\n• Any personal device used to access church systems or data under a Bring Your Own Device arrangement agreed with the Operations Manager\n\nCurrent roles issued with church equipment include:\n• Parish Safeguarding Officer — laptop\n• PCC Secretary — laptop\n\nThis policy applies whether equipment is used on church premises, at home, or elsewhere."},

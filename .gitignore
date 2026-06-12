@@ -1,0 +1,13 @@
+# Local tooling — preview launch config, agent scratch dirs.
+.claude/
+
+# Editor / OS junk.
+.DS_Store
+Thumbs.db
+*~
+*.swp
+.vscode/
+.idea/
+
+# Transient commit-message scratch files used by the dev tooling.
+.commit-msg.tmp
