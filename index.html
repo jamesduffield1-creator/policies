@@ -323,6 +323,35 @@ textarea.form-input{resize:vertical;min-height:100px}
   .editor-layout{grid-template-columns:1fr}
   .editor-sidebar{position:static}
 }
+
+/* ── MOBILE (drawer) ─────────────────────────────────────── */
+.menu-toggle{display:none;background:transparent;border:none;color:var(--ink);padding:6px;border-radius:6px;align-items:center;justify-content:center;width:36px;height:36px;margin-right:4px}
+.menu-toggle:hover{background:var(--surface)}
+.menu-toggle svg{width:22px;height:22px}
+.sidebar-scrim{display:none;position:fixed;inset:0;background:rgba(12,15,20,.45);z-index:45}
+.sidebar-scrim.open{display:block}
+
+@media(max-width:768px){
+  .menu-toggle{display:inline-flex}
+  .sidebar{transform:translateX(-100%);transition:transform .25s ease;width:260px}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .topbar{padding:0 16px;gap:8px}
+  .topbar-title{font-size:17px}
+  .page{padding:16px}
+  .stats-row{grid-template-columns:1fr;gap:12px;margin-bottom:20px}
+  .filter-bar{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+  .filter-bar .filter-pill{flex:0 0 auto}
+  .filter-bar .search-input{flex:0 0 200px;min-width:200px}
+  .meta-grid{grid-template-columns:1fr}
+  .meta-key{width:130px}
+  .modal{max-width:none;border-radius:12px;margin:8px}
+  .modal-head,.modal-body,.modal-foot{padding-left:20px;padding-right:20px}
+  .policy-header-block{padding:24px 22px}
+  .policy-header-block h1{font-size:24px}
+  .topbar-actions{gap:6px;flex-wrap:wrap}
+  .topbar-actions .btn{padding:6px 10px;font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -330,8 +359,10 @@ textarea.form-input{resize:vertical;min-height:100px}
 <!-- ── APP ──────────────────────────────────────────────── -->
 <div id="app">
 
+  <div class="sidebar-scrim" id="sidebar-scrim" onclick="closeSidebar()" aria-hidden="true"></div>
+
   <!-- Sidebar -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <svg class="sidebar-cross" viewBox="0 0 32 32" fill="none">
         <rect x="13" y="1" width="6" height="30" rx="3" fill="#C8952E"/>
@@ -390,7 +421,14 @@ textarea.form-input{resize:vertical;min-height:100px}
   <!-- Main -->
   <div class="main">
     <div class="topbar">
-      <div class="topbar-title" id="page-title">Dashboard</div>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="sidebar" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="topbar-title" id="page-title" style="flex:1">Dashboard</div>
       <div class="topbar-actions" id="topbar-actions"></div>
     </div>
 
@@ -793,7 +831,21 @@ const PAGE_TITLES={
   view:'Policy',compliance:'Compliance Tracker',people:'People & Roles',
   settings:'Church Settings'
 };
+function toggleSidebar(){
+  const open=!document.getElementById('sidebar').classList.contains('open');
+  document.getElementById('sidebar').classList.toggle('open',open);
+  document.getElementById('sidebar-scrim').classList.toggle('open',open);
+  document.getElementById('menu-toggle').setAttribute('aria-expanded',open?'true':'false');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-scrim').classList.remove('open');
+  const t=document.getElementById('menu-toggle');
+  if(t)t.setAttribute('aria-expanded','false');
+}
+
 function showPage(p,push=true){
+  closeSidebar();
   // Protect admin-only pages
   if(['editor','settings','people'].includes(p)&&role!=='admin'){p='library';}
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
