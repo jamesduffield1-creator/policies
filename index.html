@@ -716,8 +716,7 @@ function openAdminLogin(){
     <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
     <button class="btn btn-primary" onclick="submitAdminLogin()">Sign In</button>
   `;
-  document.getElementById('modal').classList.add('open');
-  setTimeout(()=>document.getElementById('admin-pw-input')?.focus(),100);
+  openModalShell('#admin-pw-input');
 }
 async function submitAdminLogin(){
   const pw=document.getElementById('admin-pw-input').value;
@@ -1570,21 +1569,31 @@ function importData(event){
 // variables the callback captured (this previously broke Apply Template).
 let _modalActions=[];
 let _modalReturnFocus=null;
+
+// Shared open mechanics for every modal — records the element to restore
+// focus to on close, opens the dialog, and moves focus inside it. Pass a
+// selector to focus a specific field (e.g. the admin password input);
+// otherwise the first focusable element is used. Any modal opened without
+// this (building DOM then add('open') directly) leaks focus on close.
+function openModalShell(focusSel){
+  _modalReturnFocus=document.activeElement;
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>{
+    const target=focusSel?document.querySelector(focusSel):null;
+    if(target){target.focus();return;}
+    const f=document.querySelectorAll('#modal input, #modal textarea, #modal select, #modal button, #modal [tabindex]:not([tabindex="-1"])');
+    (f[0]||document.querySelector('.modal'))?.focus();
+  },20);
+}
+
 function openModal(title,body,actions=[]){
   _modalActions=actions.map(a=>a.fn);
-  _modalReturnFocus=document.activeElement;
   document.getElementById('modal-title').textContent=title;
   document.getElementById('modal-body').innerHTML=`<p style="font-size:14px;color:var(--slate)">${body}</p>`;
   document.getElementById('modal-foot').innerHTML=
     `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>`+
     actions.map((a,i)=>`<button class="btn ${a.cls}" onclick="_modalActions[${i}]()">${a.label}</button>`).join('');
-  document.getElementById('modal').classList.add('open');
-  // Move focus to the first focusable inside the modal so screen readers
-  // and keyboard users land in the dialog instead of behind it.
-  setTimeout(()=>{
-    const f=document.querySelectorAll('#modal input, #modal textarea, #modal select, #modal button, #modal [tabindex]:not([tabindex="-1"])');
-    (f[0]||document.querySelector('.modal'))?.focus();
-  },20);
+  openModalShell();
 }
 function closeModal(){
   document.getElementById('modal').classList.remove('open');
@@ -1645,7 +1654,7 @@ function applyTemplate(){
   openModal(
     'Apply template: '+selectedCat,
     `<p style="font-size:13px;color:var(--slate);margin-bottom:10px">This will replace your current sections with the standard <strong>${selectedCat}</strong> template. Section headings are pre-filled with best-practice starter content — edit it to fit your context, or tap 💡 on any section for alternative wording.</p>
-     <p style="font-size:13px;color:var(--amber-light);background:var(--amber-light);border:1px solid #FDE68A;padding:8px 10px;border-radius:6px;color:var(--amber)">⚠ This will overwrite any sections you've already written.</p>`,
+     <p style="font-size:13px;background:var(--amber-light);border:1px solid #FDE68A;padding:8px 10px;border-radius:6px;color:var(--amber)">⚠ This will overwrite any sections you've already written.</p>`,
     [{label:'Apply Template',cls:'btn-primary',fn:()=>{
       closeModal();
       renderEditorSections(buildSectionsFromTemplate(template));
@@ -1744,7 +1753,7 @@ function openSectionSuggestions(idx){
   document.getElementById('modal-title').textContent='💡 Suggestions — §'+(idx+1);
   document.getElementById('modal-body').innerHTML=`<div style="overflow-y:auto;max-height:58vh">${html}</div>`;
   document.getElementById('modal-foot').innerHTML=`<button class="btn btn-secondary" onclick="closeModal()">Close</button>`;
-  document.getElementById('modal').classList.add('open');
+  openModalShell();
 }
 
 function useSuggestion(sectionIdx,snippetIdx){
