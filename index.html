@@ -743,8 +743,18 @@ function adminLogout(){
 
 // ── INIT ─────────────────────────────────────────────────
 function init(){
+  // Merge any saved Settings over the data.js defaults rather than
+  // replacing them wholesale. This keeps newly-pushed config keys
+  // visible to browsers that have saved Settings — the same
+  // always-fresh-from-data.js principle the policies use. The admin
+  // password hash is always taken from data.js so a pushed password
+  // change is authoritative and can't be pinned to an old value by a
+  // stored config.
   const storedCfg=localStorage.getItem('sfm_config');
-  config=storedCfg?JSON.parse(storedCfg):{...window.STF_CONFIG};
+  let parsedCfg=null;
+  if(storedCfg){try{parsedCfg=JSON.parse(storedCfg);}catch(e){parsedCfg=null;}}
+  config=parsedCfg?deepMerge({...window.STF_CONFIG},parsedCfg):{...window.STF_CONFIG};
+  config.adminPasswordHash=window.STF_CONFIG.adminPasswordHash;
 
   // Built-in policies always come from data.js so updates are
   // immediately visible to all users on every page load.
@@ -1482,6 +1492,8 @@ function deepMerge(dst,src){
   if(!src||typeof src!=='object'||Array.isArray(src))return src===undefined?dst:src;
   const out={...dst};
   for(const k of Object.keys(src)){
+    // Guard against prototype pollution from imported/stored JSON.
+    if(k==='__proto__'||k==='constructor'||k==='prototype')continue;
     const sv=src[k],dv=out[k];
     out[k]=(sv&&typeof sv==='object'&&!Array.isArray(sv)&&dv&&typeof dv==='object'&&!Array.isArray(dv))
       ? deepMerge(dv,sv) : sv;
@@ -1721,11 +1733,8 @@ function useSuggestion(sectionIdx,snippetIdx){
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 
 // ── BOOT ─────────────────────────────────────────────────
-// Load config early (needed for admin password check)
-config={...window.STF_CONFIG};
-const _bootCfg=localStorage.getItem('sfm_config');
-if(_bootCfg){try{config={...config,...JSON.parse(_bootCfg)};}catch(e){}}
-// App loads immediately in read mode — no login required
+// App loads immediately in read mode — no login required.
+// init() loads and merges config (defaults + saved Settings) itself.
 init();
 </script>
 </body>
