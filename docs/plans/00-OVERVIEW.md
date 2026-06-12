@@ -1,30 +1,33 @@
 # STF Policy Hub — Development Plans
 
-**Written:** 10 June 2026, by a Claude Code review session (Fable 5).
-**For:** A follow-up Claude Code session (Opus) to execute. Each plan is self-contained.
+**Maintained by:** Claude review sessions (Fable) writing plans; Claude execution sessions (Opus) implementing them.
+**Last review:** 12 June 2026, against commit `f8816b0`.
 
 ## Context you need before starting
 
 - This is a **pure vanilla JS/HTML/CSS static site** — zero dependencies, zero build tools. Do not introduce frameworks, bundlers, or npm packages. This is a hard constraint from the owner (James Duffield, Operations Manager, St Francis Mackworth).
 - Deployed via GitHub Pages: https://jamesduffield1-creator.github.io/policies/
 - Repo: https://github.com/jamesduffield1-creator/policies (branch `main`, push = deploy)
-- Files: `index.html` (entire app, ~1340 lines), `data.js` (42 built-in policies + church config), `suggestions.js` (content bank for the editor), `equipment-issue-form.html` (standalone printable form)
-- Architecture rule: **built-in policies always load fresh from `data.js`**; only custom (user-created) policies persist to localStorage under `sfm_custom_policies`. Config persists under `sfm_config`. Never write built-ins to localStorage.
-- Design system: "Editorial / Refined Anglican" — forest green `#1A3D2B` sidebar, warm parchment `#F5F2EB` background, Playfair Display headings, DM Sans body, gold `#C8952E` accents, muted desaturated badges. Keep all new UI consistent with this.
-- Working style James expects: plan before code, surgical patches, commit messages explain the why, push when a coherent unit of work is done.
+- Files: `index.html` (entire app), `data.js` (42 built-in policies + church config), `suggestions.js` (editor content bank), `equipment-issue-form.html` (printable form)
+- Architecture rule: **built-in policies always load fresh from `data.js`**; only custom policies persist to localStorage (`sfm_custom_policies`). Config persists under `sfm_config`. Never write built-ins to localStorage. (Plan 06 extends this rule properly to config.)
+- Design system: "Editorial / Refined Anglican" — forest green `#1A3D2B` sidebar, warm parchment `#F5F2EB`, Playfair Display + DM Sans, gold `#C8952E` accents, muted badges. Keep it restrained.
+- Working style James expects: plan before code, surgical patches, verify in the browser, commit messages explain the why, check in between plans.
 
-## Plans, in priority order
+## Status
 
-| # | Plan | Priority | Est. effort |
-|---|------|----------|-------------|
-| 01 | Critical bug fixes | **P1 — do first** | Small |
-| 02 | Security & robustness hardening | P2 | Medium |
-| 03 | Deep linking & navigation | P2 | Medium |
-| 04 | Mobile & accessibility | P3 | Medium |
-| 05 | Content & documentation | P3 | Small |
+| # | Plan | Status |
+|---|------|--------|
+| 01 | Critical bug fixes | ✅ Done (`c45fd6e`…`1501e83`; Bug 3 was a false positive — no `<\div>` existed) |
+| 02 | Security & robustness hardening | ✅ Done (`6c4dea5`, `1a0849f`, `7bd2b88`; §5 folded into the Plan 05 README) |
+| 03 | Deep linking & navigation | ✅ Done (`5b3b337`) |
+| 04 | Mobile & accessibility | ✅ Done (`acef1bb`, `d29069f`; Lighthouse run + native-button conversion deliberately deferred) |
+| 05 | Content & documentation | ✅ Done (`f8816b0`; p37 review-date decision still with James) |
+| 06 | Post-implementation audit fixes | **Open — do first.** Contains a P1: stale-config bug in `init()` means pushed config changes (incl. admin password hash) never reach browsers that saved Settings |
+| 07 | DBS register & expiry tracking | Open — feature; confirm scope with James first (incl. the personal-data-in-public-repo question) |
+| 08 | Annual review support | Open — small code items + recurring Claude-assisted content review; two date decisions pending James (p37 overdue, p42 due now) |
 
-Do Plan 01 in its own commit(s) before anything else — it contains a likely-broken headline feature. Plans 02–05 are independent of each other and can be done in any order.
+Additional fixes landed outside the plans during execution: emerging-topics onclick quote collision (`c51c611`), sidebar New Policy init skip (`8fa4c69`), template body pre-population + 💡 heading-normalisation (`e74a53f`), form-input width collapse (`a6880a4`).
 
 ## Verification
 
-There is no test suite. Verify by opening `index.html` in a browser (a simple static server works: `npx serve .`). Key flows to manually test after any change: read-mode browsing, admin login (password check against SHA-256 hash in `data.js`), policy editor save/edit/delete, Apply Template, 💡 section suggestions, export/import JSON, print dialog.
+No test suite. Verify in the browser (`npx serve .` or the live site). Key flows: read-mode browsing, deep links (`?policy=p36`), back/forward, admin login, editor save/edit/delete/save-as-copy, Apply Template + Emerging Topics + 💡 suggestions, export/import JSON, mobile drawer at 375px, keyboard-only navigation, print dialog.
