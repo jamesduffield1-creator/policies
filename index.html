@@ -50,6 +50,9 @@ input,textarea,select{font-family:var(--font-sans)}
 .skip-link{position:absolute;left:-9999px;top:8px;z-index:9999;background:var(--ink);color:#fff;padding:8px 14px;border-radius:6px;font-size:13px;font-weight:600}
 .skip-link:focus{left:8px}
 
+/* Visually hidden but available to screen readers (live regions etc). */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
 /* ── LAYOUT ──────────────────────────────────────────────── */
 #app{display:flex;min-height:100vh}
 
@@ -472,7 +475,9 @@ textarea.form-input{resize:vertical;min-height:100px}
         <input class="search-input" type="text" id="lib-search" placeholder="Search policies…" oninput="renderLibrary()">
         <div id="lib-filters" style="display:flex;gap:6px;flex-wrap:wrap"></div>
       </div>
-      <div class="policy-grid" id="lib-grid" aria-live="polite" aria-busy="false"></div>
+      <div id="lib-alert"></div>
+      <div id="lib-count" class="sr-only" role="status" aria-live="polite"></div>
+      <div class="policy-grid" id="lib-grid"></div>
     </div>
 
     <!-- ── POLICY VIEW (full page) ───────────────────────── -->
@@ -823,16 +828,16 @@ function applyUrlState({replace=false}={}){
 }
 
 function showMissingPolicyAlert(id){
-  const grid=document.getElementById('lib-grid');
-  if(!grid)return;
-  const banner=document.createElement('div');
-  banner.className='alert alert-warn';
-  banner.style.cssText='grid-column:1/-1;margin-bottom:8px;justify-content:space-between';
-  banner.innerHTML=`
-    <span><strong>That policy link wasn't found.</strong> The id <code style="background:rgba(0,0,0,.05);padding:1px 5px;border-radius:3px;font-size:11px">${esc(id)}</code> may belong to a custom policy on another device, or it may have been renamed.</span>
-    <button class="btn btn-ghost btn-sm" onclick="this.parentElement.remove()" style="margin-left:12px">Dismiss</button>
-  `;
-  grid.insertBefore(banner,grid.firstChild);
+  // Render into the dedicated #lib-alert container, NOT #lib-grid —
+  // renderLibrary() rebuilds the grid on every keystroke and would wipe
+  // a banner injected there.
+  const host=document.getElementById('lib-alert');
+  if(!host)return;
+  host.innerHTML=`
+    <div class="alert alert-warn" style="margin-bottom:14px;justify-content:space-between">
+      <span><strong>That policy link wasn't found.</strong> The id <code style="background:rgba(0,0,0,.05);padding:1px 5px;border-radius:3px;font-size:11px">${esc(id)}</code> may belong to a custom policy on another device, or it may have been renamed.</span>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('lib-alert').innerHTML=''" style="margin-left:12px">Dismiss</button>
+    </div>`;
 }
 
 window.addEventListener('popstate',()=>applyUrlState({replace:false}));
@@ -881,11 +886,15 @@ function showPage(p,push=true){
   });
   document.getElementById('page-title').textContent=PAGE_TITLES[p]||p;
   currentPage=p;
-  // viewPolicy() handles its own pushState for ?policy=…; other pages
-  // get either ?page=… or the clean root for the dashboard.
-  if(push&&p!=='view'){
+  // viewPolicy() handles its own pushState for ?policy=…; reader pages
+  // get either ?page=… or the clean root for the dashboard. Admin pages
+  // (editor/settings/people) are transient workspaces, not destinations
+  // applyUrlState restores, so they don't touch history.
+  const ADMIN_PAGES=['editor','settings','people'];
+  if(push&&p!=='view'&&!ADMIN_PAGES.includes(p)){
     const url=p==='dashboard'?location.pathname:`${location.pathname}?page=${p}`;
-    history.pushState({page:p},'',url);
+    // Skip a duplicate entry for the page we're already on.
+    if(location.pathname+location.search!==url)history.pushState({page:p},'',url);
   }
   const actions=document.getElementById('topbar-actions');
   actions.innerHTML='';
@@ -1096,6 +1105,14 @@ function renderLibrary(){
       </div>
     </div>
   `).join('');
+  // Announce the result count via a small live region instead of making
+  // the whole grid a live region (which would re-announce every card on
+  // each keystroke).
+  const count=document.getElementById('lib-count');
+  if(count){
+    const n=filtered.length;
+    count.textContent=q2?`${n} ${n===1?'policy':'policies'} match "${q}"`:`${n} ${n===1?'policy':'policies'} shown`;
+  }
 }
 
 // ── POLICY VIEW ───────────────────────────────────────────
@@ -1126,7 +1143,10 @@ function viewPolicy(id,push=true){
   if(!p)return;
   currentViewId=id;
   if(push){
-    history.pushState({policy:id},'',`${location.pathname}?policy=${encodeURIComponent(id)}`);
+    const url=`${location.pathname}?policy=${encodeURIComponent(id)}`;
+    // Don't stack a duplicate entry for the policy we're already viewing
+    // (re-clicking the same item in a list would otherwise break Back).
+    if(location.pathname+location.search!==url)history.pushState({policy:id},'',url);
   }
   const metaRows=[
     ['Applies to','All volunteers and staff at St Francis Mackworth'],
@@ -1580,6 +1600,12 @@ document.addEventListener('keydown',(e)=>{
   const modal=document.getElementById('modal');
   const modalOpen=modal?.classList.contains('open');
   if(e.key==='Escape'&&modalOpen){closeModal();return;}
+  // Escape also closes the mobile nav drawer (never open with a modal).
+  if(e.key==='Escape'&&document.getElementById('sidebar')?.classList.contains('open')){
+    closeSidebar();
+    document.getElementById('menu-toggle')?.focus();
+    return;
+  }
   if((e.key==='Enter'||e.key===' ')&&e.target?.getAttribute('role')==='button'){
     e.preventDefault();
     e.target.click();
