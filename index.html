@@ -1244,6 +1244,19 @@ function exportData(){
   a.download='stf-policy-data-'+new Date().toISOString().slice(0,10)+'.json';
   a.click();
 }
+// Deep-merge `src` over `dst` (returns a new object). Plain-object only;
+// arrays and primitives in src replace whatever's in dst.
+function deepMerge(dst,src){
+  if(!src||typeof src!=='object'||Array.isArray(src))return src===undefined?dst:src;
+  const out={...dst};
+  for(const k of Object.keys(src)){
+    const sv=src[k],dv=out[k];
+    out[k]=(sv&&typeof sv==='object'&&!Array.isArray(sv)&&dv&&typeof dv==='object'&&!Array.isArray(dv))
+      ? deepMerge(dv,sv) : sv;
+  }
+  return out;
+}
+
 function importData(event){
   const file=event.target.files[0];
   if(!file)return;
@@ -1251,15 +1264,35 @@ function importData(event){
   reader.onload=(e)=>{
     try{
       const data=JSON.parse(e.target.result);
-      if(!data.policies||!Array.isArray(data.policies))throw new Error('No valid policies array found. This does not appear to be an STF Policy Hub export file.');
-      if(!data.config||typeof data.config!=='object')throw new Error('No valid config found. This does not appear to be an STF Policy Hub export file.');
-      policies=data.policies;
-      config=data.config;
+      if(!data||typeof data!=='object')throw new Error('File is not a JSON object. This does not appear to be an STF Policy Hub export file.');
+      if(!Array.isArray(data.policies))throw new Error('No valid policies array found. This does not appear to be an STF Policy Hub export file.');
+      if(data.config&&typeof data.config!=='object')throw new Error('Config section is malformed.');
+
+      // Only adopt customs from the import. Built-ins always come fresh
+      // from data.js to avoid the localStorage stale-data bug.
+      const validCustoms=[];
+      let skipped=0;
+      for(const p of data.policies){
+        if(p&&typeof p==='object'&&p.custom===true&&typeof p.id==='string'&&typeof p.title==='string'){
+          validCustoms.push(p);
+        } else if(p&&typeof p==='object'&&p.custom===true){
+          skipped++; // had custom flag but missing/invalid id or title
+        }
+      }
+      const builtIn=window.STF_POLICIES.map(p=>({...p}));
+      policies=[...builtIn,...validCustoms];
+
+      // Deep-merge config over defaults so missing nested keys don't crash later.
+      config=deepMerge({...window.STF_CONFIG},data.config||{});
+
       save();
       renderDashboard();renderLibrary();renderCompliance();renderPeople();renderSettings();
-      openModal('Import Successful',`${policies.length} policies loaded successfully.`,[]);
+      const lines=[`${validCustoms.length} custom ${validCustoms.length===1?'policy':'policies'} imported.`];
+      if(skipped)lines.push(`${skipped} entries were skipped (missing id or title).`);
+      lines.push(`${builtIn.length} built-in policies remain current from data.js.`);
+      openModal('Import Successful',lines.join('<br>'),[]);
     }catch(err){
-      openModal('Import Failed',`Could not import this file.<br><br><strong>Reason:</strong> ${err.message}`,[]);
+      openModal('Import Failed',`Could not import this file.<br><br><strong>Reason:</strong> ${esc(err.message)}`,[]);
     }
   };
   reader.onerror=()=>openModal('Import Failed','Could not read the file. Please try again.',[]);
