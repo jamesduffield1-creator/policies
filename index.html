@@ -467,7 +467,24 @@ textarea.form-input{resize:vertical;min-height:100px}
               </div>
               <div class="form-group">
                 <label class="form-label">Review Date</label>
-                <input class="form-input" type="text" id="ed-review" placeholder="April 2027">
+                <div style="display:flex;gap:8px">
+                  <select class="form-input" id="ed-review-month" style="flex:1">
+                    <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    <option value="April">April</option>
+                    <option value="May">May</option>
+                    <option value="June">June</option>
+                    <option value="July">July</option>
+                    <option value="August">August</option>
+                    <option value="September">September</option>
+                    <option value="October">October</option>
+                    <option value="November">November</option>
+                    <option value="December">December</option>
+                  </select>
+                  <input class="form-input" type="number" id="ed-review-year" min="2024" max="2099" style="flex:0 0 96px">
+                </div>
+                <div id="ed-review-hint" style="display:none;font-size:11px;color:var(--amber);margin-top:4px"></div>
               </div>
             </div>
             <div class="form-group" style="margin-top:14px">
@@ -975,6 +992,43 @@ function nextPolicyNumber(){
   return String((nums.length?Math.max(...nums):0)+1).padStart(2,'0');
 }
 
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function defaultReviewYear(){
+  // Pick April of the year that is at least ~6 months from now,
+  // matching the church's typical April review cycle.
+  const now=new Date();
+  return now.getMonth()>=9 ? now.getFullYear()+2 : now.getFullYear()+1;
+}
+function setReviewDate(str){
+  const monthEl=document.getElementById('ed-review-month');
+  const yearEl=document.getElementById('ed-review-year');
+  const hintEl=document.getElementById('ed-review-hint');
+  const parts=(str||'').trim().split(/\s+/);
+  const monthIdx=parts.length===2?MONTHS.indexOf(parts[0]):-1;
+  const yearNum=parts.length===2?parseInt(parts[1],10):NaN;
+  if(monthIdx>=0&&!isNaN(yearNum)){
+    monthEl.value=MONTHS[monthIdx];
+    yearEl.value=yearNum;
+    hintEl.style.display='none';
+    hintEl.textContent='';
+  } else {
+    monthEl.value='April';
+    yearEl.value=defaultReviewYear();
+    if(str&&str.trim()){
+      hintEl.textContent=`Previous value was "${str}" — couldn't parse, defaulted to April ${defaultReviewYear()}.`;
+      hintEl.style.display='block';
+    } else {
+      hintEl.style.display='none';
+      hintEl.textContent='';
+    }
+  }
+}
+function getReviewDate(){
+  const m=document.getElementById('ed-review-month').value;
+  const y=document.getElementById('ed-review-year').value;
+  return `${m} ${y}`;
+}
+
 function openNewEditor(){
   editingId=null;
   _activeEmergingKey=null;
@@ -983,7 +1037,7 @@ function openNewEditor(){
   document.getElementById('ed-title').value='';
   document.getElementById('ed-tagline').value='';
   document.getElementById('ed-version').value='1.0';
-  document.getElementById('ed-review').value='April 2027';
+  setReviewDate('April '+defaultReviewYear());
   document.getElementById('ed-owner').value='Operations Manager';
   document.getElementById('ed-status').value='active';
   document.getElementById('ed-pcc-toggle').classList.remove('on');
@@ -1005,7 +1059,7 @@ function openEditEditor(id){
   document.getElementById('ed-title').value=p.title||'';
   document.getElementById('ed-tagline').value=p.tagline||'';
   document.getElementById('ed-version').value=p.version||'1.0';
-  document.getElementById('ed-review').value=p.reviewDate||'April 2027';
+  setReviewDate(p.reviewDate||'');
   document.getElementById('ed-owner').value=p.owner||'Operations Manager';
   document.getElementById('ed-status').value=p.status||'active';
   document.getElementById('ed-pcc-toggle').classList.toggle('on',!!p.pccRequired);
@@ -1088,7 +1142,7 @@ function savePolicy(){
     category:selectedCat,
     pccRequired:document.getElementById('ed-pcc-toggle').classList.contains('on'),
     version:document.getElementById('ed-version').value.trim()||'1.0',
-    reviewDate:document.getElementById('ed-review').value.trim(),
+    reviewDate:getReviewDate(),
     owner:document.getElementById('ed-owner').value.trim(),
     status:document.getElementById('ed-status').value,
     sections:validSections,
@@ -1123,7 +1177,7 @@ function savePolicyAsCopy(){
     category:selectedCat,
     pccRequired:document.getElementById('ed-pcc-toggle').classList.contains('on'),
     version:document.getElementById('ed-version').value.trim()||'1.0',
-    reviewDate:document.getElementById('ed-review').value.trim(),
+    reviewDate:getReviewDate(),
     owner:document.getElementById('ed-owner').value.trim(),
     status:document.getElementById('ed-status').value,
     sections:validSections,
