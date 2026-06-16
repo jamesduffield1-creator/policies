@@ -557,6 +557,16 @@ textarea.form-input{resize:vertical;min-height:100px}
               </button>
               <span class="toggle-label">PCC Approval Required</span>
             </div>
+            <div class="form-grid form-grid-2" style="margin-top:14px">
+              <div class="form-group">
+                <label class="form-label">Last Reviewed <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+                <input class="form-input" type="text" id="ed-last-reviewed" placeholder="e.g. June 2026">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Reviewed By <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+                <input class="form-input" type="text" id="ed-reviewed-by" placeholder="e.g. PCC">
+              </div>
+            </div>
           </div>
 
           <!-- Sections -->
@@ -593,6 +603,9 @@ textarea.form-input{resize:vertical;min-height:100px}
 
     <!-- ── COMPLIANCE ──────────────────────────────────────── -->
     <div class="page" id="page-compliance">
+      <div class="admin-only" style="display:none;text-align:right;margin-bottom:12px">
+        <button class="btn btn-ghost" onclick="generateReviewPack()">🖨 Generate review pack</button>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
         <div>
           <div class="section-header"><span class="section-title">PCC Adoption Required</span></div>
@@ -1152,6 +1165,8 @@ function viewPolicy(id,push=true){
     ['Approved by',p.pccRequired?'PCC':'Operations Manager'],
     ['Version',p.version||'1.0'],
     ['Review date',p.reviewDate||'April 2027'],
+    ...(p.lastReviewed?[['Last reviewed',p.lastReviewed]]:[]),
+    ...(p.reviewedBy?[['Reviewed by',p.reviewedBy]]:[]),
     ['Policy owner',p.owner||'Operations Manager'],
     ['PSO',config.people?.pso?.name||'Joanne Baillie'],
     ['Diocese',config.church?.diocese||'Derby Diocese'],
@@ -1248,6 +1263,8 @@ function openNewEditor(){
   document.getElementById('ed-owner').value='Operations Manager';
   document.getElementById('ed-status').value='active';
   document.getElementById('ed-pcc-toggle').classList.remove('on');
+  document.getElementById('ed-last-reviewed').value='';
+  document.getElementById('ed-reviewed-by').value='';
   document.getElementById('ed-delete-btn').style.display='none';
   document.getElementById('ed-builtin-alert').style.display='none';
   document.getElementById('ed-save-copy-btn').style.display='none';
@@ -1270,6 +1287,8 @@ function openEditEditor(id){
   document.getElementById('ed-owner').value=p.owner||'Operations Manager';
   document.getElementById('ed-status').value=p.status||'active';
   document.getElementById('ed-pcc-toggle').classList.toggle('on',!!p.pccRequired);
+  document.getElementById('ed-last-reviewed').value=p.lastReviewed||'';
+  document.getElementById('ed-reviewed-by').value=p.reviewedBy||'';
   document.getElementById('ed-delete-btn').style.display=p.custom?'inline-flex':'none';
   document.getElementById('ed-builtin-alert').style.display=p.custom?'none':'flex';
   document.getElementById('ed-save-copy-btn').style.display=p.custom?'none':'inline-flex';
@@ -1355,6 +1374,8 @@ function savePolicy(){
     sections:validSections,
     custom:true,
     lastModified:new Date().toLocaleDateString('en-GB',{month:'long',year:'numeric'}),
+    lastReviewed:document.getElementById('ed-last-reviewed').value.trim()||undefined,
+    reviewedBy:document.getElementById('ed-reviewed-by').value.trim()||undefined,
   };
   if(editingId){
     const idx=policies.findIndex(p=>p.id===editingId);
@@ -1390,6 +1411,8 @@ function savePolicyAsCopy(){
     sections:validSections,
     custom:true,
     lastModified:new Date().toLocaleDateString('en-GB',{month:'long',year:'numeric'}),
+    lastReviewed:document.getElementById('ed-last-reviewed').value.trim()||undefined,
+    reviewedBy:document.getElementById('ed-reviewed-by').value.trim()||undefined,
   };
   policies.push(policy);
   save();
@@ -1431,6 +1454,34 @@ function renderCompliance(){
       ${catBadge(p.category)}
     </div>
   `).join('');
+}
+
+function generateReviewPack(){
+  const today=new Date();
+  const in3=new Date();in3.setMonth(in3.getMonth()+3);
+  const in12=new Date();in12.setMonth(in12.getMonth()+12);
+  function pStatus(p){
+    const d=parseReviewDate(p.reviewDate);
+    if(!d)return{label:'Unknown',cls:'unknown'};
+    if(d<today)return{label:'Overdue',cls:'overdue'};
+    if(d<=in3)return{label:'Due &lt; 3 months',cls:'due-soon'};
+    if(d<=in12)return{label:'Due &lt; 12 months',cls:'due-year'};
+    return{label:'Current',cls:'current'};
+  }
+  const churchName=esc(config.church?.name||'St Francis Mackworth');
+  const sorted=[...policies].sort((a,b)=>Number(a.number||99)-Number(b.number||99));
+  const dateStr=today.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  const overdue=sorted.filter(p=>pStatus(p).cls==='overdue');
+  const dueSoon=sorted.filter(p=>pStatus(p).cls==='due-soon');
+  const css=`body{font-family:Georgia,serif;margin:0;padding:32px;color:#1a1a1a;font-size:13px}h1{font-size:22px;margin:0 0 4px}h2{font-size:15px;margin:28px 0 10px;border-bottom:1px solid #ccc;padding-bottom:4px}p.sub{margin:0 0 24px;color:#555;font-size:13px}table{width:100%;border-collapse:collapse;margin-bottom:8px}th{background:#1A3D2B;color:#fff;text-align:left;padding:7px 10px;font-size:12px}td{padding:6px 10px;border-bottom:1px solid #e5e5e5;vertical-align:top;font-size:12px}tr:nth-child(even) td{background:#f9f8f5}.overdue{color:#b91c1c;font-weight:600}.due-soon{color:#92400e;font-weight:600}.due-year{color:#78350f}.current{color:#166534}.unknown{color:#666}.pcc-tag{font-size:11px;background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 5px}.alert-row{margin-bottom:8px;padding:9px 12px;border-left:3px solid #b91c1c;background:#fef2f2;font-size:13px}.alert-row.amber{border-color:#F59E0B;background:#fffbeb}.tagline{font-size:12px;color:#666;margin-top:2px}footer{margin-top:40px;border-top:1px solid #ccc;padding-top:10px;font-size:11px;color:#888;display:flex;justify-content:space-between}@media print{body{padding:16px}h2{page-break-before:auto}}`;
+  const rows=sorted.map(p=>`<tr><td>${esc(p.number||'—')}</td><td>${esc(p.title)}${p.pccRequired?' <span class="pcc-tag">PCC</span>':''}</td><td>${esc(p.category||'—')}</td><td>v${esc(p.version||'1.0')}</td><td>${esc(p.reviewDate||'—')}</td><td class="${pStatus(p).cls}">${pStatus(p).label}</td></tr>`).join('');
+  const overdueHTML=overdue.length?`<h2>Overdue for Review (${overdue.length})</h2>${overdue.map(p=>`<div class="alert-row"><strong>${esc(p.number)}. ${esc(p.title)}</strong> — ${esc(p.reviewDate||'no date')}${p.tagline?`<div class="tagline">${esc(p.tagline)}</div>`:''}</div>`).join('')}`:'';
+  const dueSoonHTML=dueSoon.length?`<h2>Due within 3 Months (${dueSoon.length})</h2>${dueSoon.map(p=>`<div class="alert-row amber"><strong>${esc(p.number)}. ${esc(p.title)}</strong> — ${esc(p.reviewDate||'no date')}${p.tagline?`<div class="tagline">${esc(p.tagline)}</div>`:''}</div>`).join('')}`:'';
+  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>${churchName} — Policy Review Pack</title><style>${css}</style></head><body><h1>${churchName} — Policy Review Pack</h1><p class="sub">Generated ${dateStr} &middot; ${sorted.length} policies</p>${overdueHTML}${dueSoonHTML}<h2>All Policies by Status</h2><table><thead><tr><th>#</th><th>Title</th><th>Category</th><th>Ver</th><th>Review Date</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table><footer><span>${churchName}</span><span>Review Pack &middot; ${dateStr}</span></footer><script>window.onload=function(){window.print();}<\/script></body></html>`;
+  const win=window.open('','_blank');
+  if(!win){openModal('Popup Blocked','Please allow popups for this site to open the review pack.',[]);return;}
+  win.document.write(html);
+  win.document.close();
 }
 
 // ── PEOPLE ────────────────────────────────────────────────
