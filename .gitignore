@@ -11,3 +11,9 @@ Thumbs.db
 
 # Transient commit-message scratch files used by the dev tooling.
 .commit-msg.tmp
+
+# npm artefacts (docx generation, one-off scripts).
+node_modules/
+package.json
+package-lock.json
+make-form.js
